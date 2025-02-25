@@ -55,6 +55,12 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOffic
 
 end)
 
+tab.newButton("ZNX Blackhole", "", function()
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOfficial/refs/heads/main/Blackhole"))()
+
+end)
+
 local tab = DrRayLibrary.newTab("Reach","")
 
 tab.newButton("Kill all Zephr","", function()
