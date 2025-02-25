@@ -1,0 +1,33 @@
+local args = {[1] = 150}
+
+while true do
+    for i = 1, 1000 do -- More requests per loop
+        game:GetService("Players").LocalPlayer.Character.SuperSpeedCoil.Speed:FireServer(unpack(args))
+    end
+    task.wait(0.001) -- Minimal delay
+end
+
+
+while true do
+    task.spawn(fireSpeed) -- This runs the fireSpeed function in parallel
+    task.wait(1)  -- Delay between each batch of requests
+end
+
+
+-- Function to fire speed requests
+local function fireSpeed()
+    for i = 1, 1000 do
+        -- Sending speed request
+        game:GetService("Players").LocalPlayer.Character.SuperSpeedCoil.Speed:FireServer(unpack(args))
+    end
+end
+
+-- Spawning multiple threads to handle the requests simultaneously
+while true do
+    -- Spawn multiple concurrent requests (e.g., 5 threads)
+    for i = 1, 5 do
+        task.spawn(fireSpeed)
+    end
+    -- Short delay between loops to avoid overload
+    task.wait(0.1)
+end
