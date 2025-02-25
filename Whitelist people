@@ -2,12 +2,26 @@ local player = game.Players.LocalPlayer
 
 local whitelist = {
     ["BLOXY1354745"] = true, ["ghazitab"] = true, ["0Tripyxman0"] = true, 
-    ["KingZackDabest"] = true, ["IcyEmpathy"] = true, ["Hello_ImNeW089"] = true, 
-    ["James1008797"] = true, ["botboysherlocky"] = true, ["Bigbentasteno"] = true, 
-    ["XPhantom_xdemonx"] = true, ["HEJUSTSTUNGMEINBAL"] = true, ["PlayerSlot12"] = true, 
-    ["PlayerSlot13"] = true, ["PlayerSlot14"] = true, ["PlayerSlot15"] = true, 
-    ["PlayerSlot16"] = true, ["PlayerSlot17"] = true, ["PlayerSlot18"] = true, 
-    ["PlayerSlot19"] = true, ["PlayerSlot20"] = true
+    ["KingZackDabest"] = true, ["mukhtartab"] = true, ["Hello_ImNeW089"] = true, 
+    ["James1008797"] = true, ["unicornontoppp"] = true, ["Bigbentasteno"] = true, 
+    ["XPhantom_xdemonx"] = true, ["invisibleted"] = true, ["botboysherlocky"] = true, 
+    ["sjudsiskdje"] = true, ["IHaveAimb0TN00BS"] = true, ["IDKhowtogame02"] = true, 
+    ["IcyEmpathy"] = true, ["HEJUSTSTUNGMEINBAL"] = true, ["Reaperarrived"] = true
+}
+
+-- Function to check if the player is authorized
+local function isAuthorized()
+    return whitelist[player.Name] ~= nil
+end
+
+-- Check authorization
+if not isAuthorized() then
+    player:Kick("xd ez get a mom noob🤣🦃")
+    return -- Prevent further script execution
+end
+
+-- Whitelisted player logic
+print("Whitelisted!")
 }
 
 -- Function to check if the player is authorized
