@@ -83,6 +83,12 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOffic
 
 end)
 
+tab.newButton("Phantom Smoke", "", function()
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Phantom%20Smoke"))()
+
+end)
+
 local tab = DrRayLibrary.newTab("Hubs","")
 
 tab.newButton("PhantomMotion", "", function()
