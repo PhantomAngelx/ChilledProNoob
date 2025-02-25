@@ -121,3 +121,15 @@ tab.newButton("Quiz Bot", "", function()
 loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Quiz-Bot-official-25907"))()
 
 end)
+
+tab.newButton("Auto Tool Grabber", "", function()
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOfficial/refs/heads/main/Auto-Tool-grabber"))()
+
+end)
+
+tab.newButton("Reach", "", function()
+
+loadstring(game:HttpGet("https://pastefy.app/a8GiMLXr/raw"))()
+
+end)
