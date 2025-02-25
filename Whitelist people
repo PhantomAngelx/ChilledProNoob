@@ -17,7 +17,7 @@ end
 
 -- Check authorization
 if not isAuthorized() then
-    player:Kick("this hub is all mine like sha 😜😜")
+    player:Kick("Haha Get a mom xd 😂😂")
     return -- Prevent further script execution
 end
 
