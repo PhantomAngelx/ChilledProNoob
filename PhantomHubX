@@ -1,3 +1,5 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Whitelist%20people"))()
+
 local DrRayLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/AZYsGithub/DrRay-UI-Library/main/DrRay.lua"))()
 local window = DrRayLibrary:Load("PhantomHubX", "Default")
 
@@ -58,6 +60,12 @@ local tab = DrRayLibrary.newTab("Reach","")
 tab.newButton("Kill all Zephr","", function()
 
 loadstring(game:HttpGet('https://raw.githubusercontent.com/zephyr10101/sword-kill-all/main/script'))()
+
+end)
+
+tab.newButton("Kill all with friends check", "", function()
+
+loadstring(game:HttpGet("https://pastefy.app/a8GiMLXr/raw"))()
 
 end)
 
