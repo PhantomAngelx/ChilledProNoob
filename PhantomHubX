@@ -1,0 +1,126 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Whitelisted%20people"))()
+
+
+local DrRayLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/AZYsGithub/DrRay-UI-Library/main/DrRay.lua"))()
+local window = DrRayLibrary:Load("PhantomHubX", "Default")
+
+local tab = DrRayLibrary.newTab("Admin Scripts", "ImageIdHere")
+
+tab.newButton("NamelessAdmin", "", function()
+
+loadstring(game:HttpGet("https://scriptblox.com/raw/Universal-Script-Nameless-Admin-no-byfron-ui-11288"))()
+
+end)
+
+tab.newButton("System Broken","", function()
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/H20CalibreYT/SystemBroken/main/script"))()
+
+end)
+
+tab.newButton("Old NamelessAdmin","", function()
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/FilteringEnabled/NamelessAdmin/main/Source"))();
+
+end)
+
+local tab = DrRayLibrary.newTab("Flings","")
+
+tab.newButton("Auto Fling", "", function()
+
+loadstring(game:HttpGet('https://raw.githubusercontent.com/GhostPlayer352/Test4/main/Auto%20Fling%20Player'))()
+
+end)
+
+tab.newButton("Cube Fling", "", function()
+
+loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Op-blackhole-script-20078"))()
+
+end)
+
+tab.newButton("Fling gui Troll", "", function()
+
+loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Fling-gui-troll-17597"))()
+
+end)
+
+tab.newButton("Kawaii Fling", "", function()
+
+loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-KAWAII-FREAKY-FLING-BEST-UNIVERSAL-FLING-17551"))()
+
+end)
+
+tab.newButton("Freeze Detect Fling", "", function()
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOfficial/refs/heads/main/Fling-With-Freeze-Detection"))()
+
+end)
+
+local tab = DrRayLibrary.newTab("Reach","")
+
+tab.newButton("Kill all Zephr","", function()
+
+loadstring(game:HttpGet('https://raw.githubusercontent.com/zephyr10101/sword-kill-all/main/script'))()
+
+end)
+
+local tab = DrRayLibrary.newTab("Rockets and Lag","")
+
+tab.newButton("Smoke Script","", function()
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/Smoke-scirpt-/refs/heads/main/Znx"))()
+
+end)
+
+tab.newButton("Rocket Lock Script", "", function()
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOfficial/refs/heads/main/Rocket.lua"))()
+
+end)
+
+local tab = DrRayLibrary.newTab("Hubs","")
+
+tab.newButton("PhantomMotion", "", function()
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/PhantomMotion"))()
+
+end)
+
+tab.newButton("ZNX Hub", "", function()
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOfficial/refs/heads/main/ZnxHub"))()
+
+end)
+
+local tab = 
+DrRayLibrary.newTab("Others","")
+
+tab.newButton("Shiftlock", "", function()
+
+loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Universal-Shiftlock-No-Disappear-after-die-23318"))()
+
+end)
+
+tab.newButton("Super Ring", "", function()
+
+loadstring(game:HttpGet("https://pastebin.com/raw/JmAw1ucM"))()
+
+end)
+
+tab.newButton("Fly", "", function()
+
+loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Universal-fly-script-28708"))()
+
+end)
+
+tab.newButton("Bee Swarm Simulator", "", function()
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Chris8889/atlasbss/main/script.lua"))()
+
+end)
+
+tab.newButton("Quiz Bot", "", function()
+
+loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Quiz-Bot-official-25907"))()
+
+end)
