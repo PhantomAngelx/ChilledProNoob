@@ -22,18 +22,3 @@ end
 
 -- Whitelisted player logic
 print("Whitelisted!")
-}
-
--- Function to check if the player is authorized
-local function isAuthorized()
-    return whitelist[player.Name] ~= nil
-end
-
--- Check authorization
-if not isAuthorized() then
-    player:Kick("xd ez get a mom noob🤣🦃")
-    return -- Prevent further script execution
-end
-
--- Whitelisted player logic
-print("Whitelisted!")
