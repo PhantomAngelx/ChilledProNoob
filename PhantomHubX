@@ -89,6 +89,12 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM
 
 end)
 
+tab.newButton("Forcefield Hub", "", function()
+
+loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Forcefield-29494"))()
+
+end)
+
 local tab = 
 DrRayLibrary.newTab("Others","")
 
