@@ -89,6 +89,12 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM
 
 end)
 
+tab.newButton("GamerHub Gui", "", function()
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/GamerScripter/Game-Hub/main/loader"))()
+
+end)
+
 local tab = 
 DrRayLibrary.newTab("Others","")
 
