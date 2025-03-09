@@ -139,3 +139,9 @@ tab.newButton("Reach", "", function()
 loadstring(game:HttpGet("https://pastefy.app/a8GiMLXr/raw"))()
 
 end)
+
+tab.newButton("Hitbox Expander", "", function()
+
+loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Universal-Hitbox-Expander-30502"))()
+
+end)
