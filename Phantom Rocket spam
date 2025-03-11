@@ -1,4 +1,4 @@
-local numRockets = 5000  -- Increase to 5000
+local numRockets = 3000  -- Fire 3000 rockets
 
 for i = 1, numRockets do
     local args = {
@@ -8,7 +8,7 @@ for i = 1, numRockets do
     -- Fire the event
     game:GetService("Players").LocalPlayer.Character.RocketLauncher.BattleRocketEvent:FireServer(unpack(args))
 
-    -- Delay every 500 rockets to prevent instant crashes
+    -- Delay every 500 rockets to prevent crashing instantly
     if i % 500 == 0 then
         task.wait(0.01)
     end
