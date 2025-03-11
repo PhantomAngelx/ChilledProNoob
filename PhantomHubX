@@ -81,6 +81,12 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM
 
 end)
 
+tab.newButton("1K Rocket Spam", "", function()
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/1K%20Rocket%20Spam"))()
+
+end)
+
 local tab = DrRayLibrary.newTab("Hubs","")
 
 tab.newButton("PhantomMotion", "", function()
