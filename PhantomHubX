@@ -134,6 +134,12 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM
 
 end)
 
+tab.newButton("Snowman Simulator", "", function()
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ExtremeAntonis/extremehub/main/loader.lua"))()
+
+end)
+
 tab.newButton("Quiz Bot", "", function()
 
 loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Quiz-Bot-official-25907"))()
