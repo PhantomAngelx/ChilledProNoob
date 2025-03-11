@@ -151,3 +151,9 @@ tab.newButton("Hitbox Expander", "", function()
 loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Universal-Hitbox-Expander-30502"))()
 
 end)
+
+tab.newButton("Chat Translator", "", function()
+
+loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Chat-Translator-ALPHA-21036"))()
+
+end)
