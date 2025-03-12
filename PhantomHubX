@@ -61,6 +61,12 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOffic
 
 end)
 
+tab.newButton("Phantom Fling", "", function()
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Phantom%20Fling"))()
+
+end)
+
 local tab = DrRayLibrary.newTab("Rockets and Lag","")
 
 tab.newButton("Smoke Script","", function()
