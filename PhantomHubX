@@ -178,18 +178,18 @@ end)
 
 tab.newButton("Force equip Tools", "", function()
 
-```loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOfficial/refs/heads/main/Force%20tool%20equip"))()```
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOfficial/refs/heads/main/Force%20tool%20equip"))()
 
 end)
 
 tab.newButton("Auto tool Grabber", "", function()
 
-```loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOfficial/refs/heads/main/Auto-Tool-grabber"))()```
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOfficial/refs/heads/main/Auto-Tool-grabber"))()
 
 end)
 
 tab.newButton("Illumina Duper", "", function()
 
-```loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOfficial/refs/heads/main/Illumina%20duper", true))()```
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOfficial/refs/heads/main/Illumina%20duper", true))()
 
 end)
