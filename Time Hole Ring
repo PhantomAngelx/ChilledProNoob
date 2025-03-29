@@ -42,7 +42,7 @@ UICorner.Parent = MainFrame
 local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, 0, 0, 40)
 Title.Position = UDim2.new(0, 0, 0, 0)
-Title.Text = "Super Ring Parts v3"
+Title.Text = "Archer Time Ring"
 Title.TextColor3 = Color3.fromRGB(101, 67, 33) -- Dark brown
 Title.BackgroundColor3 = Color3.fromRGB(222, 184, 135) -- Lighter brown
 Title.Font = Enum.Font.Fondamento -- More elegant font
@@ -316,20 +316,20 @@ end)
 
 -- Notifications
 StarterGui:SetCore("SendNotification", {
-    Title = "Join me Discord !",
-    Text = "For More Op Scripts !",
+    Title = "See the time",
+    Text = "Nothing better than time",
     Duration = 5
 })
 
 -- Get player thumbnail
-local userId = Players:GetUserIdFromNameAsync("NannaDev")
+local userId = Players:GetUserIdFromNameAsync("ArcherHere")
 local thumbType = Enum.ThumbnailType.HeadShot
 local thumbSize = Enum.ThumbnailSize.Size420x420
 local content, isReady = Players:GetUserThumbnailAsync(userId, thumbType, thumbSize)
 
 StarterGui:SetCore("SendNotification", {
-    Title = "Enjoy Super Ring [V3]",
-    Text = "Cracked By .gg/3kZ7dKbJPe",
+    Title = "TimeHole ring",
+    Text = "Time the ring with time",
     Icon = content,
     Duration = 5
 })
