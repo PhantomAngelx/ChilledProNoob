@@ -230,7 +230,7 @@ end
 
 local radius = 50
 local height = 100
-local rotationSpeed = 10
+local rotationSpeed = 25
 local attractionStrength = 1000
 local ringPartsEnabled = false
 
