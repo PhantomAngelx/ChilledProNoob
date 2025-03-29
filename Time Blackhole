@@ -1,1 +1,48 @@
-loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Op-blackhole-script-20078"))()
+-- Gui to Lua -- Enhanced Bring Parts Script
+
+-- Instances: local Gui = Instance.new("ScreenGui") local Main = Instance.new("Frame") local Box = Instance.new("TextBox") local Button = Instance.new("TextButton") local Label = Instance.new("TextLabel")
+
+-- Properties: Gui.Name = "Gui" Gui.Parent = game.CoreGui -- Changed from gethui() for better compatibility
+
+Main.Name = "Main" Main.Parent = Gui Main.BackgroundColor3 = Color3.fromRGB(75, 75, 75) Main.Size = UDim2.new(0.3, 0, 0.2, 0) Main.Position = UDim2.new(0.35, 0, 0.5, 0) Main.Draggable = true Main.Active = true
+
+Box.Name = "Box" Box.Parent = Main Box.Size = UDim2.new(0.8, 0, 0.3, 0) Box.Position = UDim2.new(0.1, 0, 0.2, 0) Box.PlaceholderText = "Enter Player Name" Box.Text = "" Box.TextScaled = true
+
+Button.Name = "Button" Button.Parent = Main Button.Size = UDim2.new(0.6, 0, 0.3, 0) Button.Position = UDim2.new(0.2, 0, 0.6, 0) Button.Text = "Bring | Off" Button.TextScaled = true
+
+Label.Name = "Label" Label.Parent = Main Label.Size = UDim2.new(1, 0, 0.15, 0) Label.Text = "Enhanced Bring Parts" Label.TextScaled = true
+
+-- Services: local Players = game:GetService("Players") local RunService = game:GetService("RunService") local Workspace = game:GetService("Workspace")
+
+-- Variables: local LocalPlayer = Players.LocalPlayer local Folder = Instance.new("Folder", Workspace) local Part = Instance.new("Part", Folder) local Attachment1 = Instance.new("Attachment", Part) Part.Anchored = true Part.CanCollide = false Part.Transparency = 1
+
+local blackHoleActive = false local humanoidRootPart = nil
+
+-- Stronger Force Functions: local function ForcePart(v) if v:IsA("BasePart") and not v.Anchored and not v.Parent:FindFirstChildOfClass("Humanoid") and v.CanCollide then for _, x in ipairs(v:GetChildren()) do if x:IsA("BodyMover") or x:IsA("RocketPropulsion") then x:Destroy() end end
+
+v.CanCollide = false
+    v.Massless = true
+    
+    local Torque = Instance.new("Torque", v)
+    Torque.Torque = Vector3.new(1000000, 1000000, 1000000) -- Stronger force
+    
+    local AlignPosition = Instance.new("AlignPosition", v)
+    local Attachment2 = Instance.new("Attachment", v)
+    Torque.Attachment0 = Attachment2
+    AlignPosition.MaxForce = math.huge
+    AlignPosition.MaxVelocity = math.huge
+    AlignPosition.Responsiveness = 1000 -- Increased responsiveness
+    AlignPosition.Attachment0 = Attachment2
+    AlignPosition.Attachment1 = Attachment1
+end
+
+end
+
+-- Toggle Bring Parts Function: local function toggleBlackHole() blackHoleActive = not blackHoleActive if blackHoleActive then Button.Text = "Bring | On" for _, v in ipairs(Workspace:GetDescendants()) do ForcePart(v) end RunService.RenderStepped:Connect(function() if blackHoleActive and humanoidRootPart then Attachment1.WorldCFrame = humanoidRootPart.CFrame * CFrame.new(0, 5, 0) -- More precise positioning end end) else Button.Text = "Bring | Off" end end
+
+-- Get Player Function: local function getPlayer(name) local lowerName = string.lower(name) for _, p in pairs(Players:GetPlayers()) do if string.find(string.lower(p.Name), lowerName) or string.find(string.lower(p.DisplayName), lowerName) then return p end end end
+
+-- Event Listeners: Box.FocusLost:Connect(function(enterPressed) if enterPressed then local player = getPlayer(Box.Text) if player then humanoidRootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart") if humanoidRootPart then Box.Text = player.Name else Box.Text = "Player not found" end end end end)
+
+Button.MouseButton1Click:Connect(function() if humanoidRootPart then toggleBlackHole() else print("Player not selected") end end)
+
