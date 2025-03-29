@@ -122,7 +122,7 @@ loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Universal-S
 
 end)
 
-tab.newButton("TimeHole ring", "", function()
+tab.newButton("TimeHolering", "", function()
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Time%20Hole%20Ring"))()
 
@@ -155,12 +155,6 @@ end)
 tab.newButton("Quiz Bot", "", function()
 
 loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Quiz-Bot-official-25907"))()
-
-end)
-
-tab.newButton("Auto Tool Grabber", "", function()
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOfficial/refs/heads/main/Auto-Tool-grabber"))()
 
 end)
 
