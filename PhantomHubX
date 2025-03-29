@@ -31,9 +31,9 @@ loadstring(game:HttpGet('https://raw.githubusercontent.com/GhostPlayer352/Test4/
 
 end)
 
-tab.newButton("Cube Fling", "", function()
+tab.newButton("Time Blackhole fling", "", function()
 
-loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Op-blackhole-script-20078"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Time%20Blackhole"))()
 
 end)
 
@@ -78,6 +78,12 @@ end)
 tab.newButton("Rocket Lock Script", "", function()
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOfficial/refs/heads/main/Rocket.lua"))()
+
+end)
+
+tab.newButton("No cooldown", "", function()
+
+loadstring(game:HttpGet("https://pastebin.com/raw/cKa7EseS"))()
 
 end)
 
