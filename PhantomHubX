@@ -122,9 +122,9 @@ loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Universal-S
 
 end)
 
-tab.newButton("Super Ring", "", function()
+tab.newButton("TimeHole ring", "", function()
 
-loadstring(game:HttpGet("https://pastebin.com/raw/JmAw1ucM"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Time%20Hole%20Ring"))()
 
 end)
 
