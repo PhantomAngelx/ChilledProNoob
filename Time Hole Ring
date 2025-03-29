@@ -231,7 +231,7 @@ end
 local radius = 50
 local height = 100
 local rotationSpeed = 25
-local attractionStrength = 1000
+local attractionStrength = 2000
 local ringPartsEnabled = false
 
 local function RetainPart(Part)
@@ -322,7 +322,7 @@ StarterGui:SetCore("SendNotification", {
 })
 
 -- Get player thumbnail
-local userId = Players:GetUserIdFromNameAsync("ArcherHere")
+local userId = Players:GetUserIdFromNameAsync("XPhantom_xdemonx")
 local thumbType = Enum.ThumbnailType.HeadShot
 local thumbSize = Enum.ThumbnailSize.Size420x420
 local content, isReady = Players:GetUserThumbnailAsync(userId, thumbType, thumbSize)
