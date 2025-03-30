@@ -10,16 +10,9 @@ local whitelist = {
     ["Bigbentasteyes"] = true, ["PlayerSlot20"] = true, ["PlayerSlot21"] = true
 }
 
--- Function to check if the player is authorized
-local function isAuthorized()
-    return whitelist[player.Name] == true
-end
-
--- Check authorization
-if not isAuthorized() then
+if not whitelist[player.Name] then
     player:Kick("Haha Get a mom xd 😂😂")
-    return -- Prevent further script execution
+    while true do end
 end
 
--- Whitelisted player logic
 print("Whitelisted!")
