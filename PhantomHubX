@@ -122,7 +122,7 @@ loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Universal-S
 
 end)
 
-tab.newButton("TimeHole ring", "", function()
+tab.newButton("TimeHolering", "", function()
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Time%20Hole%20Ring"))()
 
