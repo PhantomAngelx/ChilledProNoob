@@ -61,9 +61,9 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOffic
 
 end)
 
-tab.newButton("Phantom Fling", "", function()
+tab.newButton("Time fling", "", function()
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Phantom%20Fling"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Time%20fling"))()
 
 end)
 
