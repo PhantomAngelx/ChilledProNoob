@@ -15,8 +15,8 @@ playerListFrame.Parent = screenGui
 local listLayout = Instance.new("UIListLayout")
 listLayout.Parent = playerListFrame
 
--- Variable to keep track of the currently selected button
-local selectedButton = nil
+-- Variable to keep track of the currently selected player
+local selectedPlayerName = nil
 
 -- Function to update the player list
 local function updatePlayerList()
@@ -36,16 +36,25 @@ local function updatePlayerList()
         playerButton.TextColor3 = Color3.new(1, 1, 1)
         playerButton.Parent = playerListFrame
 
+        -- Highlight the button if it's the selected player
+        if player.Name == selectedPlayerName then
+            playerButton.BackgroundColor3 = Color3.new(0, 1, 0)
+        end
+
         -- Connect the button click event to select the player
         playerButton.MouseButton1Click:Connect(function()
             -- Deselect the previously selected button
-            if selectedButton then
-                selectedButton.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+            if selectedPlayerName then
+                for _, btn in pairs(playerListFrame:GetChildren()) do
+                    if btn:IsA("TextButton") and btn.Text == selectedPlayerName then
+                        btn.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+                    end
+                end
             end
 
             -- Select the new button and change its color to green
-            selectedButton = playerButton
-            selectedButton.BackgroundColor3 = Color3.new(0, 1, 0)
+            selectedPlayerName = player.Name
+            playerButton.BackgroundColor3 = Color3.new(0, 1, 0)
 
             print("Selected player: " .. player.Name)
             -- Add your target player selection logic here
@@ -59,3 +68,9 @@ game.Players.PlayerRemoving:Connect(updatePlayerList)
 
 -- Initial update of the player list
 updatePlayerList()
+
+-- Continuously update the player list every few seconds
+while true do
+    updatePlayerList()
+    wait(5) -- Update every 5 seconds
+end
