@@ -4,7 +4,7 @@ screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
 -- Create the Frame to hold the player list
 local playerListFrame = Instance.new("Frame")
-playerListFrame.Size = UDim2.new(0, 200, 0, 150)
+playerListFrame.Size = UDim2.new(0, 200, 0, 250)
 playerListFrame.Position = UDim2.new(0.5, -100, 0.5, -150)
 playerListFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
 playerListFrame.Active = true
