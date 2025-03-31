@@ -62,25 +62,6 @@ local function updatePlayerList()
     end
 end
 
--- Function to teleport the selected player in front of the local player
-local function teleportSelectedPlayer()
-    if selectedPlayerName then
-        local selectedPlayer = game.Players:FindFirstChild(selectedPlayerName)
-        local localPlayer = game.Players.LocalPlayer
-
-        if selectedPlayer and localPlayer and selectedPlayer.Character and localPlayer.Character then
-            local localCharacter = localPlayer.Character
-            local selectedCharacter = selectedPlayer.Character
-
-            -- Calculate the position in front of the local player
-            local frontPosition = localCharacter.PrimaryPart.CFrame * CFrame.new(0, 0, -5)
-
-            -- Teleport the selected player's character
-            selectedCharacter:SetPrimaryPartCFrame(frontPosition)
-        end
-    end
-end
-
 -- Update the player list when players are added or removed
 game.Players.PlayerAdded:Connect(updatePlayerList)
 game.Players.PlayerRemoving:Connect(updatePlayerList)
@@ -88,9 +69,8 @@ game.Players.PlayerRemoving:Connect(updatePlayerList)
 -- Initial update of the player list
 updatePlayerList()
 
--- Continuously update the player list and teleport selected player more frequently
+-- Continuously update the player list more frequently
 while true do
     updatePlayerList()
-    teleportSelectedPlayer()
     wait(0.1) -- Update every 0.1 seconds (10 times per second)
 end
