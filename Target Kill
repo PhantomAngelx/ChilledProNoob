@@ -1,0 +1,79 @@
+-- Define the tool (sword) and the player
+local sword = script.Parent
+local player = game.Players.LocalPlayer
+local selectedPlayer = nil
+
+-- Create the GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 200, 0, 300)
+frame.Position = UDim2.new(0, 10, 0, 10)
+frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+frame.Parent = screenGui
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 50)
+title.Text = "Select Player to Kill"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+title.Parent = frame
+
+local playerList = Instance.new("ScrollingFrame")
+playerList.Size = UDim2.new(1, 0, 1, -50)
+playerList.Position = UDim2.new(0, 0, 0, 50)
+playerList.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+playerList.CanvasSize = UDim2.new(0, 0, 0, 0)
+playerList.ScrollBarThickness = 10
+playerList.Parent = frame
+
+-- Function to update the player list
+local function updatePlayerList()
+    playerList:ClearAllChildren()
+    local yPos = 0
+    for _, p in pairs(game.Players:GetPlayers()) do
+        if p ~= player then
+            local button = Instance.new("TextButton")
+            button.Size = UDim2.new(1, -10, 0, 30)
+            button.Position = UDim2.new(0, 5, 0, yPos)
+            button.Text = p.Name
+            button.TextColor3 = Color3.fromRGB(255, 255, 255)
+            button.BackgroundColor3 = Color3.fromRGB(120, 120, 120)
+            button.Parent = playerList
+            button.MouseButton1Click:Connect(function()
+                selectedPlayer = p
+                title.Text = "Selected: " .. p.Name
+            end)
+            yPos = yPos + 35
+        end
+    end
+    playerList.CanvasSize = UDim2.new(0, 0, 0, yPos)
+end
+
+-- Update the player list when players join or leave
+game.Players.PlayerAdded:Connect(updatePlayerList)
+game.Players.PlayerRemoving:Connect(updatePlayerList)
+updatePlayerList()
+
+-- Function to check if the player is holding the sword
+local function isHoldingSword()
+    return player.Character and player.Character:FindFirstChildOfClass("Tool") == sword
+end
+
+-- Function to kill the target player
+local function killTarget(target)
+    if target and target.Character and target.Character:FindFirstChild("Humanoid") then
+        target.Character.Humanoid.Health = 0
+    end
+end
+
+-- Event for when the sword is equipped
+sword.Equipped:Connect(function()
+    while isHoldingSword() do
+        if selectedPlayer then
+            killTarget(selectedPlayer)
+        end
+        wait(0.1)  -- Adjust the delay as needed
+    end
+end)
