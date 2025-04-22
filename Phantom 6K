@@ -1,0 +1,23 @@
+local numRockets = 6000  -- Fire 6000 rockets
+
+local player = game:GetService("Players").LocalPlayer
+local rocketLauncher = player.Character:FindFirstChild("RocketLauncher")
+
+if not rocketLauncher or not rocketLauncher:FindFirstChild("BattleRocketEvent") then
+    warn("RocketLauncher or BattleRocketEvent not found.")
+    return
+end
+
+for i = 1, numRockets do
+    local args = {
+        [1] = Vector3.new(math.random(-1000, 1000), math.random(0, 1000), math.random(-1000, 1000)) -- Random target positions
+    }
+
+    -- Fire the event
+    rocketLauncher.BattleRocketEvent:FireServer(unpack(args))
+
+    -- Delay every 500 rockets to reduce strain
+    if i % 500 == 0 then
+        task.wait(0.01)
+    end
+end
