@@ -7,7 +7,7 @@ local tab = DrRayLibrary.newTab("Admin Scripts", "ImageIdHere")
 
 tab.newButton("NamelessAdmin", "", function()
 
-loadstring(game:HttpGet("https://scriptblox.com/raw/Universal-Script-Nameless-Admin-no-byfron-ui-11288"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ltseverydayyou/Nameless-Admin/main/Source.lua"))()
 
 end)
 
