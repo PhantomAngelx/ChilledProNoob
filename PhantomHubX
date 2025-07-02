@@ -37,18 +37,6 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM
 
 end)
 
-tab.newButton("Fling gui Troll", "", function()
-
-loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Fling-gui-troll-17597"))()
-
-end)
-
-tab.newButton("Kawaii Fling", "", function()
-
-loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-KAWAII-FREAKY-FLING-BEST-UNIVERSAL-FLING-17551"))()
-
-end)
-
 tab.newButton("Freeze Detect Fling", "", function()
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOfficial/refs/heads/main/Fling-With-Freeze-Detection"))()
@@ -61,17 +49,8 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOffic
 
 end)
 
-tab.newButton("Time fling", "", function()
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Time%20fling"))()
-
-end)
 
 local tab = DrRayLibrary.newTab("Rockets and Lag","")
-
-tab.newButton("Smoke Script","", function()
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/Smoke-scirpt-/refs/heads/main/Znx"))()
 
 end)
 
@@ -105,20 +84,6 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM
 
 end)
 
-local tab = DrRayLibrary.newTab("Hubs","")
-
-tab.newButton("PhantomMotion", "", function()
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/PhantomMotion"))()
-
-end)
-
-tab.newButton("GamerHub Gui", "", function()
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/GamerScripter/Game-Hub/main/loader"))()
-
-end)
-
 local tab = 
 DrRayLibrary.newTab("Others","")
 
@@ -140,24 +105,6 @@ loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Universal-f
 
 end)
 
-tab.newButton("Bee Swarm Simulator", "", function()
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Chris8889/atlasbss/main/script.lua"))()
-
-end)
-
-tab.newButton("Zombie Attack AutoFarm", "", function()
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Phantom%20Zombie%20attack"))()
-
-end)
-
-tab.newButton("Snowman Simulator", "", function()
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/ExtremeAntonis/extremehub/main/loader.lua"))()
-
-end)
-
 tab.newButton("Quiz Bot", "", function()
 
 loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Quiz-Bot-official-25907"))()
@@ -173,29 +120,5 @@ end)
 tab.newButton("Hitbox Expander", "", function()
 
 loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Universal-Hitbox-Expander-30502"))()
-
-end)
-
-tab.newButton("Chat Translator", "", function()
-
-loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Chat-Translator-ALPHA-21036"))()
-
-end)
-
-tab.newButton("Force equip Tools", "", function()
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOfficial/refs/heads/main/Force%20tool%20equip"))()
-
-end)
-
-tab.newButton("Auto tool Grabber", "", function()
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOfficial/refs/heads/main/Auto-Tool-grabber"))()
-
-end)
-
-tab.newButton("Illumina Duper", "", function()
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOfficial/refs/heads/main/Illumina%20duper", true))()
 
 end)
