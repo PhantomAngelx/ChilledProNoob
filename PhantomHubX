@@ -51,8 +51,6 @@ end)
 
 local tab = DrRayLibrary.newTab("Rockets and Lag","")
 
-end)
-
 tab.newButton("Rocket Lock Script", "", function()
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOfficial/refs/heads/main/Rocket.lua"))()
