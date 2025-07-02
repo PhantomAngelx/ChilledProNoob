@@ -49,6 +49,18 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOffic
 
 end)
 
+tab.newButton("Multi fling", "", function()
+
+loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Ultimate-Fling-GUI-41909"))()
+
+end)
+
+tab.newButton("TouchFling", "", function()
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/LiarRise/FLN-X/refs/heads/main/README.md"))()
+
+end)
+
 local tab = DrRayLibrary.newTab("Rockets and Lag","")
 
 tab.newButton("Rocket Lock Script", "", function()
@@ -95,6 +107,18 @@ loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-GhostHub-16
 
 end)
 
+tab.newButton("KaterHub", "", function()
+
+loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Katerhub-V3-29433"))()
+
+end)
+
+tab.newButton("Player spy", "", function()
+
+loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Spy-Players-Gui-26677"))()
+
+end)
+
 local tab = 
 DrRayLibrary.newTab("Others","")
 
@@ -131,5 +155,29 @@ end)
 tab.newButton("Hitbox Expander", "", function()
 
 loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Universal-Hitbox-Expander-30502"))()
+
+end)
+
+tab.newButton("Dances", "", function()
+
+loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Epik-R6-Dancezz-42246"))()
+
+end)
+
+tab.newButton("Sword fighting bot", "", function()
+
+loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Sword-Fighting-Bot-33372"))()
+
+end)
+
+tab.newButton("StreamSniper", "", function()
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Guest3D/ZirconHub/refs/heads/main/StreamSniper.lua"))()
+
+end)
+
+tab.newButton("Invisible", "", function()
+
+loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Invisible-FE-19153"))()
 
 end)
