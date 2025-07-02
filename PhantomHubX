@@ -83,6 +83,20 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM
 
 end)
 
+local tab = DrRayLibrary.newTab("Hubs","")
+
+tab.newButton("Rochips panel", "", function()
+
+loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-rochips-panel-34286"))()
+
+end)
+
+tab.newButton("GhostHub", "", function()
+
+loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-GhostHub-16534"))()
+
+end)
+
 local tab = 
 DrRayLibrary.newTab("Others","")
 
