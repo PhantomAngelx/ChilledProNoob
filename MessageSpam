@@ -1,0 +1,57 @@
+local lp = game:GetService("Players").LocalPlayer
+local t = game:GetService("TextChatService")
+local c = t.TextChannels:FindFirstChild("RBXGeneral")
+if not c then return end
+
+local g = Instance.new("ScreenGui", game.CoreGui)
+g.Name = "a1"
+g.ResetOnSpawn = false
+
+local f = Instance.new("Frame", g)
+f.Size = UDim2.new(0,140,0,50)
+f.Position = UDim2.new(0, 15, 0.42, 0)
+f.BackgroundColor3 = Color3.fromRGB(15,15,15)
+f.Active = true
+f.Draggable = true
+Instance.new("UICorner", f).CornerRadius = UDim.new(0, 9)
+
+local btn = Instance.new("TextButton", f)
+btn.Size = UDim2.new(1, -8, 1, -8)
+btn.Position = UDim2.new(0, 4, 0, 4)
+btn.BackgroundColor3 = Color3.fromRGB(170,0,0)
+btn.TextColor3 = Color3.new(1,1,1)
+btn.Text = "spam: off"
+btn.Font = Enum.Font.SourceSansBold
+btn.TextSize = 13
+Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+
+local list = {
+     "yo what was that 💀",
+    "nahhhh you fumbled hard 😂",
+    "bro you had ONE job 😭",
+    "ain’t no way you just did that",
+    "nah g, log off 💀",
+    "you good? cuz that was rough 😬",
+    "bro thinks he’s HIM 💀",
+    "that move had me crying fr 😭",
+    "you playin on a toaster or what 😭",
+    "bro missed every shot LMAOOO"
+}
+
+local go = false
+task.spawn(function()
+    while true do
+        if go then
+            pcall(function()
+                c:SendAsync(list[math.random(1,#list)])
+            end)
+            wait(math.random(9,18))
+        else wait(1) end
+    end
+end)
+
+btn.MouseButton1Click:Connect(function()
+    go = not go
+    btn.Text = go and "spam: on" or "spam: off"
+    btn.BackgroundColor3 = go and Color3.fromRGB(0,170,0) or Color3.fromRGB(170,0,0)
+end)
