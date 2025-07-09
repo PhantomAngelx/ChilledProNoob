@@ -181,3 +181,15 @@ tab.newButton("Invisible", "", function()
 loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Invisible-FE-19153"))()
 
 end)
+
+tab.newButton("BaseClaim", "", function()
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/BaseClaim"))(
+
+end)
+
+tab.newButton("MessageSpam", "", function()
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/MessageSpam"))()
+
+end)
