@@ -1,0 +1,18 @@
+local p = game.Players.LocalPlayer
+local c = p.Character or p.CharacterAdded:Wait()
+local names = {"Red Base","Black Base","Pink Base","Orange Base","Purple Base","Yellow Base","Blue Base"}
+local t = workspace.Tycoons.Tycoons
+
+for _, n in ipairs(names) do
+    local b = t:FindFirstChild(n)
+    if b then
+        local o = b:FindFirstChild("Owner")
+        if o and o.Value == nil then
+            local s = b:FindFirstChild("Entrance") and b.Entrance:FindFirstChild("Entrance.Top")
+            if s then
+                c:MoveTo(s.Position)
+                break
+            end
+        end
+    end
+end
