@@ -1,125 +1,106 @@
-local ScreenGui = Instance.new("ScreenGui")
-local MainFrame = Instance.new("Frame")
+Argument #1 expects a string, but Instance was passed
 
-local CookEVButton = Instance.new("TextButton")
-local StopButton = Instance.new("TextButton")
-
-local CookEVBackground = Instance.new("Frame")
-local StopBackground = Instance.new("Frame")
+means that somewhere in your code (or possibly in how the remote function is being used), you're passing an Instance (like a Part, Model, or Folder) instead of a string.
 
 
-local FrameCorner = Instance.new("UICorner")
-local CookEVCorner = Instance.new("UICorner")
-local CookEVBgCorner = Instance.new("UICorner")
-local StopCorner = Instance.new("UICorner")
-local StopBgCorner = Instance.new("UICorner")
+---
+
+🔍 From the stack trace:
+
+Script ReplicatedStorage.Modules.Numbers Line 458 function GetCurrentDimension
+Script ReplicatedStorage.Modules.Numbers Line 473 function HasWins
+Script Players.XPhantom_xdemonx.PlayerGui.ZoneGui.Client Line 78 function UpdateDoors
+
+The important line in your script appears to be:
+
+Script Players.XPhantom_xdemonx.PlayerGui.ZoneGui.Client Line 78
+
+This suggests that UpdateDoors or collectRemote:FireServer(world) is sending an Instance instead of the expected world name (string).
 
 
-ScreenGui.Parent = game.CoreGui
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+---
 
+✅ What to check
 
-MainFrame.Parent = ScreenGui
-MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-MainFrame.Position = UDim2.new(0.05, 0, 0.3, 0)
-MainFrame.Size = UDim2.new(0, 200, 0, 100)
-MainFrame.BorderSizePixel = 0
-MainFrame.Active = true
-MainFrame.Draggable = true
+In your code:
 
-FrameCorner.CornerRadius = UDim.new(0, 12)
-FrameCorner.Parent = MainFrame
-
-
-CookEVBackground.Name = "CookEVBackground"
-CookEVBackground.Parent = MainFrame
-CookEVBackground.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-CookEVBackground.Position = UDim2.new(0.05, 0, 0.1, 0)
-CookEVBackground.Size = UDim2.new(0, 180, 0, 30)
-CookEVBackground.ZIndex = 1
-
-CookEVBgCorner.CornerRadius = UDim.new(0, 8)
-CookEVBgCorner.Parent = CookEVBackground
-
-
-CookEVButton.Parent = CookEVBackground
-CookEVButton.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
-CookEVButton.Size = UDim2.new(1, 0, 1, 0)
-CookEVButton.Text = "Cook EV"
-CookEVButton.TextColor3 = Color3.new(0, 0, 0)
-CookEVButton.Font = Enum.Font.SourceSansBold
-CookEVButton.TextSize = 20
-CookEVButton.ZIndex = 2
-
-CookEVCorner.CornerRadius = UDim.new(0, 8)
-CookEVCorner.Parent = CookEVButton
-
-
-StopBackground.Name = "StopBackground"
-StopBackground.Parent = MainFrame
-StopBackground.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-StopBackground.Position = UDim2.new(0.05, 0, 0.55, 0)
-StopBackground.Size = UDim2.new(0, 180, 0, 30)
-StopBackground.ZIndex = 1
-
-StopBgCorner.CornerRadius = UDim.new(0, 8)
-StopBgCorner.Parent = StopBackground
-
-
-StopButton.Parent = StopBackground
-StopButton.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
-StopButton.Size = UDim2.new(1, 0, 1, 0)
-StopButton.Text = "Stop"
-StopButton.TextColor3 = Color3.new(0, 0, 0)
-StopButton.Font = Enum.Font.SourceSansBold
-StopButton.TextSize = 20
-StopButton.ZIndex = 2
-
-StopCorner.CornerRadius = UDim.new(0, 8)
-StopCorner.Parent = StopButton
-
-
-local TextChatService = game:GetService("TextChatService")
-local chatChannel = TextChatService.TextChannels:FindFirstChild("RBXGeneral")
-
-if not chatChannel then
-    warn("RBXGeneral channel not found.")
-    return
+for _, world in ipairs(possibleWorlds) do
+	collectRemote:FireServer(world)
 end
 
-local messages = {
-    "ev9 is dog 🙏🏻",
-    "sit down dog💀",
-    "toxic to pixels imagine",
-    "ev9 npc 💀",
-    "nah g, log off 💀",
-    "keep quiet dog ",
-    "all you can do is say loser",
-    "get better fr",
-    "ur just soo cringe 💀",
-    "just leave atp💀"
-}
+Make sure that possibleWorlds really only contains strings. From your original code, they are strings, so that part looks fine.
 
-local isRunning = false
+So, what could be going wrong?
 
-local function sendRandomMessage()
-    local index = math.random(1, #messages)
-    chatChannel:SendAsync(messages[index])
+
+---
+
+⚠️ Potential issues:
+
+1. Is collectRemote correct?
+
+Check that collectRemote is really a RemoteEvent, not a folder or module.
+
+Confirm it's being located properly in this line:
+
+local collectRemote = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("WeightSpawnHandler"):WaitForChild("Collect")
+
+✅ Double-check:
+
+Modules is a Folder
+
+WeightSpawnHandler is a Folder
+
+Collect is a RemoteEvent
+
+
+If Collect is accidentally a ModuleScript or Folder, it would be an Instance, which could break everything.
+
+
+
+2. The server-side OnServerEvent might be mishandling the input.
+
+Example (on the server):
+
+collectRemote.OnServerEvent:Connect(function(player, worldName)
+    -- Check what type worldName is
+    print(typeof(worldName)) -- Should be "string"
+end)
+
+If worldName is an Instance, that's your problem.
+
+
+
+
+
+---
+
+✅ Solution Steps
+
+1. Check Collect remote is actually a RemoteEvent
+
+Go to Explorer in Roblox Studio:
+
+ReplicatedStorage > Modules > WeightSpawnHandler > Collect
+
+Confirm that Collect is a RemoteEvent, not a Folder or ModuleScript.
+
+
+
+
+2. Print debug output Add a debug line before the FireServer call:
+
+for _, world in ipairs(possibleWorlds) do
+    print("Firing server with world:", world, typeof(world))
+    collectRemote:FireServer(world)
+    task.wait(0.2)
 end
 
+This will confirm if world is really a string.
 
-CookEVButton.MouseButton1Click:Connect(function()
-    if isRunning then return end
-    isRunning = true
 
-    task.spawn(function()
-        while isRunning do
-            sendRandomMessage()
-            task.wait(math.random(10, 20))
-        end
-    end)
-end)
+3. Check server-side code Wherever collectRemote.OnServerEvent is being handled, print out the incoming argument:
 
-StopButton.MouseButton1Click:Connect(function()
-    isRunning = false
-end)
+collectRemote.OnServerEvent:Connect(function(player, world)
+    print("Received:", world, typeof(world))
+    -- Must be a string
