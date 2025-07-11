@@ -77,3 +77,49 @@ StopButton.ZIndex = 2
 
 StopCorner.CornerRadius = UDim.new(0, 8)
 StopCorner.Parent = StopButton
+
+
+local TextChatService = game:GetService("TextChatService")
+local chatChannel = TextChatService.TextChannels:FindFirstChild("RBXGeneral")
+
+if not chatChannel then
+    warn("RBXGeneral channel not found.")
+    return
+end
+
+local messages = {
+    "ev9 is dog 🙏🏻",
+    "sit down dog💀",
+    "toxic to pixels imagine",
+    "ev9 npc 💀",
+    "nah g, log off 💀",
+    "keep quiet dog ",
+    "all you can do is say loser",
+    "get better fr",
+    "ur just soo cringe 💀",
+    "just leave atp💀"
+}
+
+local isRunning = false
+
+local function sendRandomMessage()
+    local index = math.random(1, #messages)
+    chatChannel:SendAsync(messages[index])
+end
+
+
+CookEVButton.MouseButton1Click:Connect(function()
+    if isRunning then return end
+    isRunning = true
+
+    task.spawn(function()
+        while isRunning do
+            sendRandomMessage()
+            task.wait(math.random(10, 20))
+        end
+    end)
+end)
+
+StopButton.MouseButton1Click:Connect(function()
+    isRunning = false
+end)
