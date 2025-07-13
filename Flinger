@@ -1,0 +1,79 @@
+FlingTarget_Button.MouseButton1Click:Connect(function()
+	if TargetedPlayer ~= nil then
+		ChangeToggleColor(FlingTarget_Button)
+		if FlingTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
+			if TouchFling_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(255,0,0) then
+				ChangeToggleColor(TouchFling_Button)
+			end
+			local OldPos = GetRoot(plr).Position
+			ToggleFling(true)
+			repeat task.wait()
+				pcall(function()
+					PredictionTP(Players[TargetedPlayer],"safe")
+				end)
+				task.wait()
+			until FlingTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(255,0,0)
+			TeleportTO(OldPos.X,OldPos.Y,OldPos.Z,"pos","safe")
+		else
+			ToggleFling(false)
+		end
+	end
+end)
+
+ViewTarget_Button.MouseButton1Click:Connect(function()
+	if TargetedPlayer ~= nil then
+		ChangeToggleColor(ViewTarget_Button)
+		if ViewTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
+			repeat
+				pcall(function()
+					game.Workspace.CurrentCamera.CameraSubject = Players[TargetedPlayer].Character.Humanoid
+				end)
+				task.wait(0.5)
+			until ViewTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(255,0,0)
+			game.Workspace.CurrentCamera.CameraSubject = plr.Character.Humanoid
+		end
+	end
+end)
+
+FocusTarget_Button.MouseButton1Click:Connect(function()
+	if TargetedPlayer ~= nil then
+		ChangeToggleColor(FocusTarget_Button)
+		if FocusTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
+			repeat
+				pcall(function()
+					local target = Players[TargetedPlayer]
+					TeleportTO(0,0,0,target)
+					Push(Players[TargetedPlayer])
+				end)
+				task.wait(0.2)
+			until FocusTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(255,0,0)
+		end
+	end
+end)
+
+BenxTarget_Button.MouseButton1Click:Connect(function()
+	if TargetedPlayer ~= nil then
+		ChangeToggleColor(BenxTarget_Button)
+		if BenxTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
+			PlayAnim(5918726674,0,1)
+			repeat
+				pcall(function()
+					if not GetRoot(plr):FindFirstChild("BreakVelocity") then
+						pcall(function()
+							local TempV = Velocity_Asset:Clone()
+							TempV.Parent = GetRoot(plr)
+						end)
+					end
+					local otherRoot = GetRoot(Players[TargetedPlayer])
+					GetRoot(plr).CFrame = otherRoot.CFrame * CFrame.new(0,0,1.1)
+					GetRoot(plr).Velocity = Vector3.new(0,0,0)
+				end)
+				task.wait()
+			until BenxTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(255,0,0)
+			StopAnim()
+			if GetRoot(plr):FindFirstChild("BreakVelocity") then
+				GetRoot(plr).BreakVelocity:Destroy()
+			end
+		end
+	end
+end)
