@@ -1,79 +1,102 @@
-FlingTarget_Button.MouseButton1Click:Connect(function()
-	if TargetedPlayer ~= nil then
-		ChangeToggleColor(FlingTarget_Button)
-		if FlingTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
-			if TouchFling_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(255,0,0) then
-				ChangeToggleColor(TouchFling_Button)
-			end
-			local OldPos = GetRoot(plr).Position
-			ToggleFling(true)
-			repeat task.wait()
-				pcall(function()
-					PredictionTP(Players[TargetedPlayer],"safe")
-				end)
-				task.wait()
-			until FlingTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(255,0,0)
-			TeleportTO(OldPos.X,OldPos.Y,OldPos.Z,"pos","safe")
-		else
-			ToggleFling(false)
-		end
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+
+local UsernameBox = Instance.new("TextBox")
+local StartButton = Instance.new("TextButton")
+local StopButton = Instance.new("TextButton")
+
+local StartBackground = Instance.new("Frame")
+local StopBackground = Instance.new("Frame")
+
+local FrameCorner = Instance.new("UICorner")
+local UsernameCorner = Instance.new("UICorner")
+local StartCorner = Instance.new("UICorner")
+local StartBgCorner = Instance.new("UICorner")
+local StopCorner = Instance.new("UICorner")
+local StopBgCorner = Instance.new("UICorner")
+
+ScreenGui.Parent = game.CoreGui
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+MainFrame.Position = UDim2.new(0.05, 0, 0.3, 0)
+MainFrame.Size = UDim2.new(0, 200, 0, 200)
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+FrameCorner.CornerRadius = UDim.new(0, 12)
+FrameCorner.Parent = MainFrame
+
+-- Username TextBox
+UsernameBox.Parent = MainFrame
+UsernameBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+UsernameBox.Position = UDim2.new(0.05, 0, 0.05, 0)
+UsernameBox.Size = UDim2.new(0, 180, 0, 30)
+UsernameBox.PlaceholderText = "Enter Username"
+UsernameBox.TextColor3 = Color3.fromRGB(0, 0, 0)
+UsernameBox.Font = Enum.Font.SourceSans
+UsernameBox.TextSize = 18
+UsernameBox.ClearTextOnFocus = false
+
+UsernameCorner.CornerRadius = UDim.new(0, 8)
+UsernameCorner.Parent = UsernameBox
+
+-- Start Background
+StartBackground.Name = "StartBackground"
+StartBackground.Parent = MainFrame
+StartBackground.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+StartBackground.Position = UDim2.new(0.05, 0, 0.25, 0)
+StartBackground.Size = UDim2.new(0, 180, 0, 30)
+StartBackground.ZIndex = 1
+
+StartBgCorner.CornerRadius = UDim.new(0, 8)
+StartBgCorner.Parent = StartBackground
+
+StartButton.Parent = StartBackground
+StartButton.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
+StartButton.Size = UDim2.new(1, 0, 1, 0)
+StartButton.Text = "Start"
+StartButton.TextColor3 = Color3.new(0, 0, 0)
+StartButton.Font = Enum.Font.SourceSansBold
+StartButton.TextSize = 20
+StartButton.ZIndex = 2
+
+StartCorner.CornerRadius = UDim.new(0, 8)
+StartCorner.Parent = StartButton
+
+-- Stop Background
+StopBackground.Name = "StopBackground"
+StopBackground.Parent = MainFrame
+StopBackground.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+StopBackground.Position = UDim2.new(0.05, 0, 0.45, 0)
+StopBackground.Size = UDim2.new(0, 180, 0, 30)
+StopBackground.ZIndex = 1
+
+StopBgCorner.CornerRadius = UDim.new(0, 8)
+StopBgCorner.Parent = StopBackground
+
+StopButton.Parent = StopBackground
+StopButton.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
+StopButton.Size = UDim2.new(1, 0, 1, 0)
+StopButton.Text = "Stop"
+StopButton.TextColor3 = Color3.new(0, 0, 0)
+StopButton.Font = Enum.Font.SourceSansBold
+StopButton.TextSize = 20
+StopButton.ZIndex = 2
+
+StopCorner.CornerRadius = UDim.new(0, 8)
+StopCorner.Parent = StopButton
+
+-- Example StartButton functionality (fetches username)
+StartButton.MouseButton1Click:Connect(function()
+	local enteredName = UsernameBox.Text
+	if enteredName ~= "" then
+		print("Start button clicked. Target username: " .. enteredName)
+		-- Your logic here, e.g., set TargetedPlayer = enteredName
+	else
+		warn("Please enter a username before starting.")
 	end
 end)
 
-ViewTarget_Button.MouseButton1Click:Connect(function()
-	if TargetedPlayer ~= nil then
-		ChangeToggleColor(ViewTarget_Button)
-		if ViewTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
-			repeat
-				pcall(function()
-					game.Workspace.CurrentCamera.CameraSubject = Players[TargetedPlayer].Character.Humanoid
-				end)
-				task.wait(0.5)
-			until ViewTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(255,0,0)
-			game.Workspace.CurrentCamera.CameraSubject = plr.Character.Humanoid
-		end
-	end
-end)
-
-FocusTarget_Button.MouseButton1Click:Connect(function()
-	if TargetedPlayer ~= nil then
-		ChangeToggleColor(FocusTarget_Button)
-		if FocusTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
-			repeat
-				pcall(function()
-					local target = Players[TargetedPlayer]
-					TeleportTO(0,0,0,target)
-					Push(Players[TargetedPlayer])
-				end)
-				task.wait(0.2)
-			until FocusTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(255,0,0)
-		end
-	end
-end)
-
-BenxTarget_Button.MouseButton1Click:Connect(function()
-	if TargetedPlayer ~= nil then
-		ChangeToggleColor(BenxTarget_Button)
-		if BenxTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(0,255,0) then
-			PlayAnim(5918726674,0,1)
-			repeat
-				pcall(function()
-					if not GetRoot(plr):FindFirstChild("BreakVelocity") then
-						pcall(function()
-							local TempV = Velocity_Asset:Clone()
-							TempV.Parent = GetRoot(plr)
-						end)
-					end
-					local otherRoot = GetRoot(Players[TargetedPlayer])
-					GetRoot(plr).CFrame = otherRoot.CFrame * CFrame.new(0,0,1.1)
-					GetRoot(plr).Velocity = Vector3.new(0,0,0)
-				end)
-				task.wait()
-			until BenxTarget_Button.Ticket_Asset.ImageColor3 == Color3.fromRGB(255,0,0)
-			StopAnim()
-			if GetRoot(plr):FindFirstChild("BreakVelocity") then
-				GetRoot(plr).BreakVelocity:Destroy()
-			end
-		end
-	end
-end)
