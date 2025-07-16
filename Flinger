@@ -1,4 +1,4 @@
--- SERVICES
+-- === SERVICES ===
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
@@ -64,91 +64,123 @@ StopFling_Button.TextScaled = true
 StopFling_Button.TextWrapped = true
 StopFling_Button.Parent = Target_Section
 
--- === Variables ===
+-- === VARIABLES ===
 local flingConnection = nil
 local currentTarget = nil
+local originalCFrame = nil
 
--- === Utility ===
-local function trim(s)
-	return s:match("^%s*(.-)%s*$")
+-- === UTILITY FUNCTIONS ===
+local function trim(str)
+	return str:match("^%s*(.-)%s*$")
 end
 
 local function getPlayerByPartialName(namePart)
-	local lowerNamePart = namePart:lower()
+	local lowerName = namePart:lower()
 	for _, player in ipairs(Players:GetPlayers()) do
-		if player ~= LocalPlayer and player.Name:lower():sub(1, #lowerNamePart) == lowerNamePart then
+		if player ~= LocalPlayer and player.Name:lower():sub(1, #lowerName) == lowerName then
 			return player
 		end
 	end
 	return nil
 end
 
--- === Fling Logic ===
-local function startFling(targetPlayer)
-	if not targetPlayer or not targetPlayer.Character or not targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-		warn("Target player or their HumanoidRootPart not found.")
-		return
-	end
-
-	local myChar = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-	local myHRP = myChar:WaitForChild("HumanoidRootPart")
-
-	local targetHRP = targetPlayer.Character:WaitForChild("HumanoidRootPart")
-
-	currentTarget = targetPlayer
-
-	flingConnection = RunService.Heartbeat:Connect(function()
-		if not targetPlayer or not targetPlayer.Character or not targetHRP or not myChar or not myHRP then
-			return
-		end
-		myHRP.CFrame = targetHRP.CFrame
-		myHRP.AssemblyLinearVelocity = Vector3.new(500, 500, 500)
-	end)
-end
-
+-- === FLING FUNCTIONS ===
 local function stopFling()
 	if flingConnection then
 		flingConnection:Disconnect()
 		flingConnection = nil
 	end
+
 	currentTarget = nil
-end
 
--- === Join/Leave Player Handling ===
-local function onPlayerAdded(player)
-	print("[+] Player joined:", player.Name)
-end
-
-local function onPlayerRemoving(player)
-	print("[-] Player left:", player.Name)
-	if player == currentTarget then
-		stopFling()
-		warn("Target player left the game. Fling stopped.")
+	local myChar = LocalPlayer.Character
+	if myChar then
+		local myHRP = myChar:FindFirstChild("HumanoidRootPart")
+		if myHRP then
+			myHRP.AssemblyLinearVelocity = Vector3.zero
+			myHRP.AssemblyAngularVelocity = Vector3.zero
+			if originalCFrame then
+				myHRP.CFrame = originalCFrame
+			end
+		end
 	end
+
+	originalCFrame = nil
 end
 
--- Connect to events
-Players.PlayerAdded:Connect(onPlayerAdded)
-Players.PlayerRemoving:Connect(onPlayerRemoving)
+local function startFling(targetPlayer)
+	stopFling()
 
--- Run once for existing players
-for _, player in ipairs(Players:GetPlayers()) do
-	if player ~= LocalPlayer then
-		onPlayerAdded(player)
-	end
-end
-
--- === Button Events ===
-FlingTarget_Button.MouseButton1Click:Connect(function()
-	local inputName = trim(TargetNameBox.Text)
-	if inputName == "" then
-		warn("Please enter a target name.")
+	if not targetPlayer or not targetPlayer.Character then
+		warn("Invalid target.")
 		return
 	end
 
-	local targetPlayer = getPlayerByPartialName(inputName)
-	if targetPlayer then
-		startFling(targetPlayer)
+	local targetHRP = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+	local myChar = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+	local myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
+
+	if not targetHRP or not myHRP then
+		warn("Missing HumanoidRootPart.")
+		return
+	end
+
+	originalCFrame = myHRP.CFrame
+	currentTarget = targetPlayer
+
+	flingConnection = RunService.Heartbeat:Connect(function()
+		if not currentTarget or not currentTarget.Character then
+			stopFling()
+			return
+		end
+
+		local tgtHRP = currentTarget.Character:FindFirstChild("HumanoidRootPart")
+		myHRP = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+		if not tgtHRP or not myHRP then return end
+
+		-- Random offset around the target
+		local offset = Vector3.new(
+			math.random(-50, 50) / 10,
+			math.random(-20, 20) / 10,
+			math.random(-50, 50) / 10
+		)
+
+		myHRP.CFrame = tgtHRP.CFrame * CFrame.new(offset)
+
+		-- Strong random velocity and spin
+		myHRP.AssemblyLinearVelocity = Vector3.new(
+			math.random(-500, 500),
+			math.random(300, 700),
+			math.random(-500, 500)
+		)
+
+		myHRP.AssemblyAngularVelocity = Vector3.new(
+			math.random(-20, 20),
+			math.random(-20, 20),
+			math.random(-20, 20)
+		)
+	end)
+end
+
+-- === PLAYER EVENTS ===
+Players.PlayerRemoving:Connect(function(player)
+	if player == currentTarget then
+		warn("Target left. Stopping fling.")
+		stopFling()
+	end
+end)
+
+-- === GUI BUTTON HANDLERS ===
+FlingTarget_Button.MouseButton1Click:Connect(function()
+	local input = trim(TargetNameBox.Text)
+	if input == "" then
+		warn("Enter a player name.")
+		return
+	end
+
+	local target = getPlayerByPartialName(input)
+	if target then
+		startFling(target)
 	else
 		warn("Player not found.")
 	end
