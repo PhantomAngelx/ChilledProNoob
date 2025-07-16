@@ -1,160 +1,159 @@
--- Services & Variables
+-- SERVICES
 local Players = game:GetService("Players")
-local plr = Players.LocalPlayer
-local StopFling = false
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
 
--- GUI Elements
-local ScreenGui = Instance.new("ScreenGui")
-local MainFrame = Instance.new("Frame")
-
-local UsernameBox = Instance.new("TextBox")
-local StartButton = Instance.new("TextButton")
-local StopButton = Instance.new("TextButton")
-
-local StartBackground = Instance.new("Frame")
-local StopBackground = Instance.new("Frame")
-
-local FrameCorner = Instance.new("UICorner")
-local UsernameCorner = Instance.new("UICorner")
-local StartCorner = Instance.new("UICorner")
-local StartBgCorner = Instance.new("UICorner")
-local StopCorner = Instance.new("UICorner")
-local StopBgCorner = Instance.new("UICorner")
-
--- Parent GUI
-ScreenGui.Parent = game.CoreGui
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+-- === GUI Setup ===
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "FlingGUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
 -- Main Frame
-MainFrame.Parent = ScreenGui
-MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-MainFrame.Position = UDim2.new(0.05, 0, 0.3, 0)
-MainFrame.Size = UDim2.new(0, 200, 0, 200)
-MainFrame.BorderSizePixel = 0
-MainFrame.Active = true
-MainFrame.Draggable = true
+local Target_Section = Instance.new("Frame")
+Target_Section.Name = "Target_Section"
+Target_Section.Size = UDim2.new(0, 200, 0, 200)
+Target_Section.Position = UDim2.new(0, 50, 0, 50)
+Target_Section.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+Target_Section.BorderSizePixel = 0
+Target_Section.Active = true
+Target_Section.Draggable = true
+Target_Section.Parent = screenGui
 
-FrameCorner.CornerRadius = UDim.new(0, 12)
-FrameCorner.Parent = MainFrame
+-- TargetName TextBox
+local TargetNameBox = Instance.new("TextBox")
+TargetNameBox.Name = "TargetNameBox"
+TargetNameBox.Size = UDim2.new(0, 150, 0, 30)
+TargetNameBox.Position = UDim2.new(0, 25, 0, 50)
+TargetNameBox.PlaceholderText = "Enter target name"
+TargetNameBox.Text = ""
+TargetNameBox.TextScaled = true
+TargetNameBox.Font = Enum.Font.Oswald
+TargetNameBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TargetNameBox.TextColor3 = Color3.fromRGB(0, 0, 0)
+TargetNameBox.ClearTextOnFocus = false
+TargetNameBox.Parent = Target_Section
 
--- Username Box
-UsernameBox.Parent = MainFrame
-UsernameBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-UsernameBox.Position = UDim2.new(0.05, 0, 0.05, 0)
-UsernameBox.Size = UDim2.new(0, 180, 0, 30)
-UsernameBox.PlaceholderText = "Enter Username"
-UsernameBox.TextColor3 = Color3.fromRGB(0, 0, 0)
-UsernameBox.Font = Enum.Font.SourceSans
-UsernameBox.TextSize = 18
-UsernameBox.ClearTextOnFocus = false
-
-UsernameCorner.CornerRadius = UDim.new(0, 8)
-UsernameCorner.Parent = UsernameBox
-
--- Start Background
-StartBackground.Name = "StartBackground"
-StartBackground.Parent = MainFrame
-StartBackground.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-StartBackground.Position = UDim2.new(0.05, 0, 0.25, 0)
-StartBackground.Size = UDim2.new(0, 180, 0, 30)
-StartBackground.ZIndex = 1
-
-StartBgCorner.CornerRadius = UDim.new(0, 8)
-StartBgCorner.Parent = StartBackground
-
--- Start Button
-StartButton.Parent = StartBackground
-StartButton.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
-StartButton.Size = UDim2.new(1, 0, 1, 0)
-StartButton.Text = "Start"
-StartButton.TextColor3 = Color3.new(0, 0, 0)
-StartButton.Font = Enum.Font.SourceSansBold
-StartButton.TextSize = 20
-StartButton.ZIndex = 2
-
-StartCorner.CornerRadius = UDim.new(0, 8)
-StartCorner.Parent = StartButton
-
--- Stop Background
-StopBackground.Name = "StopBackground"
-StopBackground.Parent = MainFrame
-StopBackground.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-StopBackground.Position = UDim2.new(0.05, 0, 0.45, 0)
-StopBackground.Size = UDim2.new(0, 180, 0, 30)
-StopBackground.ZIndex = 1
-
-StopBgCorner.CornerRadius = UDim.new(0, 8)
-StopBgCorner.Parent = StopBackground
+-- Fling Button
+local FlingTarget_Button = Instance.new("TextButton")
+FlingTarget_Button.Name = "FlingTarget_Button"
+FlingTarget_Button.Size = UDim2.new(0, 150, 0, 30)
+FlingTarget_Button.Position = UDim2.new(0, 25, 0, 100)
+FlingTarget_Button.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
+FlingTarget_Button.BackgroundTransparency = 0.5
+FlingTarget_Button.BorderSizePixel = 0
+FlingTarget_Button.Font = Enum.Font.Oswald
+FlingTarget_Button.Text = "Fling"
+FlingTarget_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+FlingTarget_Button.TextScaled = true
+FlingTarget_Button.TextWrapped = true
+FlingTarget_Button.Parent = Target_Section
 
 -- Stop Button
-StopButton.Parent = StopBackground
-StopButton.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
-StopButton.Size = UDim2.new(1, 0, 1, 0)
-StopButton.Text = "Stop"
-StopButton.TextColor3 = Color3.new(0, 0, 0)
-StopButton.Font = Enum.Font.SourceSansBold
-StopButton.TextSize = 20
-StopButton.ZIndex = 2
+local StopFling_Button = Instance.new("TextButton")
+StopFling_Button.Name = "StopFling_Button"
+StopFling_Button.Size = UDim2.new(0, 150, 0, 30)
+StopFling_Button.Position = UDim2.new(0, 25, 0, 140)
+StopFling_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+StopFling_Button.BackgroundTransparency = 0.5
+StopFling_Button.BorderSizePixel = 0
+StopFling_Button.Font = Enum.Font.Oswald
+StopFling_Button.Text = "Stop"
+StopFling_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+StopFling_Button.TextScaled = true
+StopFling_Button.TextWrapped = true
+StopFling_Button.Parent = Target_Section
 
-StopCorner.CornerRadius = UDim.new(0, 8)
-StopCorner.Parent = StopButton
+-- === Variables ===
+local flingConnection = nil
+local currentTarget = nil
 
--- Utility Function: Get HumanoidRootPart
-function GetRoot(player)
-	if player and player.Character then
-		return player.Character:FindFirstChild("HumanoidRootPart")
+-- === Utility ===
+local function trim(s)
+	return s:match("^%s*(.-)%s*$")
+end
+
+local function getPlayerByPartialName(namePart)
+	local lowerNamePart = namePart:lower()
+	for _, player in ipairs(Players:GetPlayers()) do
+		if player ~= LocalPlayer and player.Name:lower():sub(1, #lowerNamePart) == lowerNamePart then
+			return player
+		end
+	end
+	return nil
+end
+
+-- === Fling Logic ===
+local function startFling(targetPlayer)
+	if not targetPlayer or not targetPlayer.Character or not targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+		warn("Target player or their HumanoidRootPart not found.")
+		return
+	end
+
+	local myChar = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+	local myHRP = myChar:WaitForChild("HumanoidRootPart")
+
+	local targetHRP = targetPlayer.Character:WaitForChild("HumanoidRootPart")
+
+	currentTarget = targetPlayer
+
+	flingConnection = RunService.Heartbeat:Connect(function()
+		if not targetPlayer or not targetPlayer.Character or not targetHRP or not myChar or not myHRP then
+			return
+		end
+		myHRP.CFrame = targetHRP.CFrame
+		myHRP.AssemblyLinearVelocity = Vector3.new(500, 500, 500)
+	end)
+end
+
+local function stopFling()
+	if flingConnection then
+		flingConnection:Disconnect()
+		flingConnection = nil
+	end
+	currentTarget = nil
+end
+
+-- === Join/Leave Player Handling ===
+local function onPlayerAdded(player)
+	print("[+] Player joined:", player.Name)
+end
+
+local function onPlayerRemoving(player)
+	print("[-] Player left:", player.Name)
+	if player == currentTarget then
+		stopFling()
+		warn("Target player left the game. Fling stopped.")
 	end
 end
 
--- TODO: Define these functions yourself
-function ToggleFling(state)
-	print("ToggleFling: ", state)
-	-- Add fling logic here
+-- Connect to events
+Players.PlayerAdded:Connect(onPlayerAdded)
+Players.PlayerRemoving:Connect(onPlayerRemoving)
+
+-- Run once for existing players
+for _, player in ipairs(Players:GetPlayers()) do
+	if player ~= LocalPlayer then
+		onPlayerAdded(player)
+	end
 end
 
-function PredictionTP(player, mode)
-	print("Teleporting to: " .. player.Name)
-	-- Add prediction teleport logic here
-end
-
-function TeleportTO(x, y, z, mode, safety)
-	print(string.format("Teleporting back to: (%.1f, %.1f, %.1f)", x, y, z))
-	-- Add teleport-to-position logic here
-end
-
--- Button Events
-StartButton.MouseButton1Click:Connect(function()
-	local enteredName = UsernameBox.Text
-	local targetPlayer = Players:FindFirstChild(enteredName)
-
-	-- List all players in output
-	for _, player in pairs(Players:GetPlayers()) do
-		print("Player found: " .. player.Name)
+-- === Button Events ===
+FlingTarget_Button.MouseButton1Click:Connect(function()
+	local inputName = trim(TargetNameBox.Text)
+	if inputName == "" then
+		warn("Please enter a target name.")
+		return
 	end
 
+	local targetPlayer = getPlayerByPartialName(inputName)
 	if targetPlayer then
-		print("Targeting player: " .. targetPlayer.Name)
-		local oldPos = GetRoot(plr).Position
-		ToggleFling(true)
-		StopFling = false
-
-		task.spawn(function()
-			repeat
-				task.wait()
-				pcall(function()
-					PredictionTP(targetPlayer, "safe")
-				end)
-			until StopFling
-
-			TeleportTO(oldPos.X, oldPos.Y, oldPos.Z, "pos", "safe")
-		end)
+		startFling(targetPlayer)
 	else
 		warn("Player not found.")
 	end
 end)
 
-StopButton.MouseButton1Click:Connect(function()
-	ToggleFling(false)
-	StopFling = true
-	print("Stopped fling loop.")
+StopFling_Button.MouseButton1Click:Connect(function()
+	stopFling()
 end)
