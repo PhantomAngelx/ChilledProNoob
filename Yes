@@ -1,63 +1,184 @@
+-- === SERVICES ===
 local Players = game:GetService("Players")
-local Player = Players.LocalPlayer
-local Character = Player.Character or Player.CharacterAdded:Wait()
-local Humanoid = Character:WaitForChild("Humanoid")
-local RootPart = Character:WaitForChild("HumanoidRootPart")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
 
--- Save original CFrame (position + rotation)
-getgenv().OldPos = RootPart.CFrame
-getgenv().FPDH = workspace.FallenPartsDestroyHeight
+-- === GUI Setup ===
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "FlingGUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
--- Function to fling character by applying force and rotation
-local function FlingCharacter()
-	-- Disable seated state to avoid conflicts
-	Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
+local Target_Section = Instance.new("Frame")
+Target_Section.Name = "Target_Section"
+Target_Section.Size = UDim2.new(0, 200, 0, 200)
+Target_Section.Position = UDim2.new(0, 50, 0, 50)
+Target_Section.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+Target_Section.BorderSizePixel = 0
+Target_Section.Active = true
+Target_Section.Draggable = true
+Target_Section.Parent = screenGui
 
-	-- Prevent falling out of the world by raising destroy height to infinity
-	workspace.FallenPartsDestroyHeight = math.huge
+local TargetNameBox = Instance.new("TextBox")
+TargetNameBox.Name = "TargetNameBox"
+TargetNameBox.Size = UDim2.new(0, 150, 0, 30)
+TargetNameBox.Position = UDim2.new(0, 25, 0, 50)
+TargetNameBox.PlaceholderText = "Enter target name"
+TargetNameBox.Text = ""
+TargetNameBox.TextScaled = true
+TargetNameBox.Font = Enum.Font.Oswald
+TargetNameBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TargetNameBox.TextColor3 = Color3.fromRGB(0, 0, 0)
+TargetNameBox.ClearTextOnFocus = false
+TargetNameBox.Parent = Target_Section
 
-	-- Create BodyVelocity to apply extreme force for fling
-	local BV = Instance.new("BodyVelocity")
-	BV.Name = "EpixVel"
-	BV.Velocity = Vector3.new(9e8, 9e8, 9e8) -- Extreme velocity
-	BV.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-	BV.Parent = RootPart
+local FlingTarget_Button = Instance.new("TextButton")
+FlingTarget_Button.Name = "FlingTarget_Button"
+FlingTarget_Button.Size = UDim2.new(0, 150, 0, 30)
+FlingTarget_Button.Position = UDim2.new(0, 25, 0, 100)
+FlingTarget_Button.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
+FlingTarget_Button.BackgroundTransparency = 0.5
+FlingTarget_Button.BorderSizePixel = 0
+FlingTarget_Button.Font = Enum.Font.Oswald
+FlingTarget_Button.Text = "Fling"
+FlingTarget_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+FlingTarget_Button.TextScaled = true
+FlingTarget_Button.TextWrapped = true
+FlingTarget_Button.Parent = Target_Section
 
-	task.wait(1) -- Duration of fling
+local StopFling_Button = Instance.new("TextButton")
+StopFling_Button.Name = "StopFling_Button"
+StopFling_Button.Size = UDim2.new(0, 150, 0, 30)
+StopFling_Button.Position = UDim2.new(0, 25, 0, 140)
+StopFling_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+StopFling_Button.BackgroundTransparency = 0.5
+StopFling_Button.BorderSizePixel = 0
+StopFling_Button.Font = Enum.Font.Oswald
+StopFling_Button.Text = "Stop"
+StopFling_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+StopFling_Button.TextScaled = true
+StopFling_Button.TextWrapped = true
+StopFling_Button.Parent = Target_Section
 
-	-- Cleanup fling effects
-	BV:Destroy()
-	Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
+-- === VARIABLES ===
+local flingConnection = nil
+local currentTarget = nil
+local originalCFrame = nil
 
-	-- Reset camera to follow the humanoid
-	workspace.CurrentCamera.CameraSubject = Humanoid
-
-	-- Restore player position and orientation using CFrame
-	repeat
-		-- Slight offset upwards (0.5 studs) for safety above ground
-		local restoreCFrame = getgenv().OldPos * CFrame.new(0, 0.5, 0)
-
-		-- Set RootPart and Character to restore position and rotation
-		RootPart.CFrame = restoreCFrame
-		Character:SetPrimaryPartCFrame(restoreCFrame)
-
-		-- Wake up the humanoid if falling or down
-		Humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
-
-		-- Zero out velocities of all parts for a clean stop
-		for _, part in ipairs(Character:GetChildren()) do
-			if part:IsA("BasePart") then
-				part.Velocity = Vector3.zero
-				part.RotVelocity = Vector3.zero
-			end
-		end
-
-		task.wait()
-	until (RootPart.Position - getgenv().OldPos.Position).Magnitude < 25
-
-	-- Restore original FallenPartsDestroyHeight
-	workspace.FallenPartsDestroyHeight = getgenv().FPDH
+-- === UTILITY FUNCTIONS ===
+local function trim(str)
+	return str:match("^%s*(.-)%s*$")
 end
 
--- Run the fling function
-FlingCharacter()
+local function getPlayerByPartialName(namePart)
+	local lowerName = namePart:lower()
+	for _, player in ipairs(Players:GetPlayers()) do
+		if player ~= LocalPlayer and player.Name:lower():sub(1, #lowerName) == lowerName then
+			return player
+		end
+	end
+	return nil
+end
+
+-- === FLING FUNCTIONS ===
+local function stopFling()
+	if flingConnection then
+		flingConnection:Disconnect()
+		flingConnection = nil
+	end
+
+	currentTarget = nil
+
+	local myChar = LocalPlayer.Character
+	if myChar then
+		local myHRP = myChar:FindFirstChild("HumanoidRootPart")
+		if myHRP and originalCFrame then
+			myHRP.AssemblyLinearVelocity = Vector3.zero
+			myHRP.AssemblyAngularVelocity = Vector3.zero
+			myHRP.CFrame = originalCFrame
+		end
+	end
+
+	originalCFrame = nil
+end
+
+local function startFling(targetPlayer)
+	stopFling()
+
+	if not targetPlayer or not targetPlayer.Character then
+		warn("Invalid target.")
+		return
+	end
+
+	local targetHRP = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+	local myChar = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+	local myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
+
+	if not targetHRP or not myHRP then
+		warn("Missing HumanoidRootPart.")
+		return
+	end
+
+	-- Save original CFrame
+	originalCFrame = myHRP.CFrame
+	currentTarget = targetPlayer
+
+	-- Enable physics + unanchor
+	myChar:WaitForChild("Humanoid"):ChangeState(Enum.HumanoidStateType.Physics)
+	myHRP.Anchored = false
+
+	-- Optional: Prevent death by void
+	pcall(function()
+		workspace.FallenPartsDestroyHeight = 0 / 0
+	end)
+
+	-- Start fling loop
+	flingConnection = RunService.PostSimulation:Connect(function()
+		if not currentTarget or not currentTarget.Character then
+			stopFling()
+			return
+		end
+
+		local thrp = currentTarget.Character:FindFirstChild("HumanoidRootPart")
+		if not thrp then return end
+
+		-- Reassign in case of respawn
+		myHRP = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+		if not myHRP then return end
+
+		-- Calculate chaotic position and apply extreme velocity
+		local offset = Vector3.new(0, -2, 0) + thrp.Velocity * (0.55 + math.random() * (0.4))
+		myHRP.CFrame = CFrame.new(thrp.Position + offset) * CFrame.Angles(math.rad(myHRP.Orientation.X), 0, math.rad(myHRP.Orientation.Z))
+
+		myHRP.AssemblyLinearVelocity = Vector3.new(10e30, 10e30, 10e30)
+		myHRP.AssemblyAngularVelocity = Vector3.new(10e30, 10e30, 10e30)
+	end)
+end
+
+-- === PLAYER EVENTS ===
+Players.PlayerRemoving:Connect(function(player)
+	if player == currentTarget then
+		warn("Target left. Stopping fling.")
+		stopFling()
+	end
+end)
+
+-- === GUI BUTTON HANDLERS ===
+FlingTarget_Button.MouseButton1Click:Connect(function()
+	local input = trim(TargetNameBox.Text)
+	if input == "" then
+		warn("Enter a player name.")
+		return
+	end
+
+	local target = getPlayerByPartialName(input)
+	if target then
+		startFling(target)
+	else
+		warn("Player not found.")
+	end
+end)
+
+StopFling_Button.MouseButton1Click:Connect(function()
+	stopFling()
+end)
