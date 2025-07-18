@@ -1,305 +1,191 @@
-getgenv().OldPos = RootPart.CFrame
+-- === SERVICES ===
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
 
+-- === GUI Setup ===
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "FlingGUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+-- Main Frame
+local Target_Section = Instance.new("Frame")
+Target_Section.Name = "Target_Section"
+Target_Section.Size = UDim2.new(0, 200, 0, 200)
+Target_Section.Position = UDim2.new(0, 50, 0, 50)
+Target_Section.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+Target_Section.BorderSizePixel = 0
+Target_Section.Active = true
+Target_Section.Draggable = true
+Target_Section.Parent = screenGui
+
+-- TargetName TextBox
+local TargetNameBox = Instance.new("TextBox")
+TargetNameBox.Name = "TargetNameBox"
+TargetNameBox.Size = UDim2.new(0, 150, 0, 30)
+TargetNameBox.Position = UDim2.new(0, 25, 0, 50)
+TargetNameBox.PlaceholderText = "Enter target name"
+TargetNameBox.Text = ""
+TargetNameBox.TextScaled = true
+TargetNameBox.Font = Enum.Font.Oswald
+TargetNameBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TargetNameBox.TextColor3 = Color3.fromRGB(0, 0, 0)
+TargetNameBox.ClearTextOnFocus = false
+TargetNameBox.Parent = Target_Section
+
+-- Fling Button
+local FlingTarget_Button = Instance.new("TextButton")
+FlingTarget_Button.Name = "FlingTarget_Button"
+FlingTarget_Button.Size = UDim2.new(0, 150, 0, 30)
+FlingTarget_Button.Position = UDim2.new(0, 25, 0, 100)
+FlingTarget_Button.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
+FlingTarget_Button.BackgroundTransparency = 0.5
+FlingTarget_Button.BorderSizePixel = 0
+FlingTarget_Button.Font = Enum.Font.Oswald
+FlingTarget_Button.Text = "Fling"
+FlingTarget_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+FlingTarget_Button.TextScaled = true
+FlingTarget_Button.TextWrapped = true
+FlingTarget_Button.Parent = Target_Section
+
+-- Stop Button
+local StopFling_Button = Instance.new("TextButton")
+StopFling_Button.Name = "StopFling_Button"
+StopFling_Button.Size = UDim2.new(0, 150, 0, 30)
+StopFling_Button.Position = UDim2.new(0, 25, 0, 140)
+StopFling_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+StopFling_Button.BackgroundTransparency = 0.5
+StopFling_Button.BorderSizePixel = 0
+StopFling_Button.Font = Enum.Font.Oswald
+StopFling_Button.Text = "Stop"
+StopFling_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+StopFling_Button.TextScaled = true
+StopFling_Button.TextWrapped = true
+StopFling_Button.Parent = Target_Section
+
+-- === VARIABLES ===
+local flingConnection = nil
+local currentTarget = nil
+local originalCFrame = nil
+
+-- === UTILITY FUNCTIONS ===
+local function trim(str)
+	return str:match("^%s*(.-)%s*$")
+end
+
+local function getPlayerByPartialName(namePart)
+	local lowerName = namePart:lower()
+	for _, player in ipairs(Players:GetPlayers()) do
+		if player ~= LocalPlayer and player.Name:lower():sub(1, #lowerName) == lowerName then
+			return player
 		end
+	end
+	return nil
+end
 
-		if THumanoid and THumanoid.Sit and not AllBool then
+-- === FLING FUNCTIONS ===
+local function stopFling()
+	if flingConnection then
+		flingConnection:Disconnect()
+		flingConnection = nil
+	end
 
+	currentTarget = nil
+
+	local myChar = LocalPlayer.Character
+	if myChar then
+		local myHRP = myChar:FindFirstChild("HumanoidRootPart")
+		if myHRP then
+			myHRP.AssemblyLinearVelocity = Vector3.zero
+			myHRP.AssemblyAngularVelocity = Vector3.zero
+			if originalCFrame then
+				myHRP.CFrame = originalCFrame
+			end
 		end
+	end
 
-		if THead then
+	originalCFrame = nil
+end
 
-			workspace.CurrentCamera.CameraSubject = THead
+local function startFling(targetPlayer)
+	stopFling()
 
-		elseif not THead and Handle then
+	if not targetPlayer or not targetPlayer.Character then
+		warn("Invalid target.")
+		return
+	end
 
-			workspace.CurrentCamera.CameraSubject = Handle
+	local targetHRP = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+	local myChar = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+	local myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
 
-		elseif THumanoid and TRootPart then
+	if not targetHRP or not myHRP then
+		warn("Missing HumanoidRootPart.")
+		return
+	end
 
-			workspace.CurrentCamera.CameraSubject = THumanoid
+	originalCFrame = myHRP.CFrame
+	currentTarget = targetPlayer
 
-		end
-
-		if not TCharacter:FindFirstChildWhichIsA("BasePart") then
-
+	flingConnection = RunService.Heartbeat:Connect(function()
+		if not currentTarget or not currentTarget.Character then
+			stopFling()
 			return
-
 		end
 
-		
-
-		local FPos = function(BasePart, Pos, Ang)
-
-			RootPart.CFrame = CFrame.new(BasePart.Position) * Pos * Ang
-
-			Character:SetPrimaryPartCFrame(CFrame.new(BasePart.Position) * Pos * Ang)
-
-			RootPart.Velocity = Vector3.new(9e7, 9e7 * 10, 9e7)
-
-			RootPart.RotVelocity = Vector3.new(9e8, 9e8, 9e8)
-
-		end
-
-		
-
-		local SFBasePart = function(BasePart)
-
-			local TimeToWait = 2
-
-			local Time = tick()
-
-			local Angle = 0
-
- 
-
-			repeat
-
-				if RootPart and THumanoid then
-
-					if BasePart.Velocity.Magnitude < 50 then
-
-						Angle = Angle + 100
-
- 
-
-						FPos(BasePart, CFrame.new(0, 1.5, 0) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle),0 ,0))
-
-						task.wait()
-
- 
-
-						FPos(BasePart, CFrame.new(0, -1.5, 0) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle), 0, 0))
-
-						task.wait()
-
- 
-
-						FPos(BasePart, CFrame.new(2.25, 1.5, -2.25) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle), 0, 0))
-
-						task.wait()
-
- 
-
-						FPos(BasePart, CFrame.new(-2.25, -1.5, 2.25) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle), 0, 0))
-
-						task.wait()
-
- 
-
-						FPos(BasePart, CFrame.new(0, 1.5, 0) + THumanoid.MoveDirection,CFrame.Angles(math.rad(Angle), 0, 0))
-
-						task.wait()
-
- 
-
-						FPos(BasePart, CFrame.new(0, -1.5, 0) + THumanoid.MoveDirection,CFrame.Angles(math.rad(Angle), 0, 0))
-
-						task.wait()
-
-					else
-
-						FPos(BasePart, CFrame.new(0, 1.5, THumanoid.WalkSpeed), CFrame.Angles(math.rad(90), 0, 0))
-
-						task.wait()
-
- 
-
-						FPos(BasePart, CFrame.new(0, -1.5, -THumanoid.WalkSpeed), CFrame.Angles(0, 0, 0))
-
-						task.wait()
-
- 
-
-						FPos(BasePart, CFrame.new(0, 1.5, THumanoid.WalkSpeed), CFrame.Angles(math.rad(90), 0, 0))
-
-						task.wait()
-
-						
-
-						FPos(BasePart, CFrame.new(0, 1.5, TRootPart.Velocity.Magnitude / 1.25), CFrame.Angles(math.rad(90), 0, 0))
-
-						task.wait()
-
- 
-
-						FPos(BasePart, CFrame.new(0, -1.5, -TRootPart.Velocity.Magnitude / 1.25), CFrame.Angles(0, 0, 0))
-
-						task.wait()
-
- 
-
-						FPos(BasePart, CFrame.new(0, 1.5, TRootPart.Velocity.Magnitude / 1.25), CFrame.Angles(math.rad(90), 0, 0))
-
-						task.wait()
-
- 
-
-						FPos(BasePart, CFrame.new(0, -1.5, 0), CFrame.Angles(math.rad(90), 0, 0))
-
-						task.wait()
-
- 
-
-						FPos(BasePart, CFrame.new(0, -1.5, 0), CFrame.Angles(0, 0, 0))
-
-						task.wait()
-
- 
-
-						FPos(BasePart, CFrame.new(0, -1.5 ,0), CFrame.Angles(math.rad(-90), 0, 0))
-
-						task.wait()
-
- 
-
-						FPos(BasePart, CFrame.new(0, -1.5, 0), CFrame.Angles(0, 0, 0))
-
-						task.wait()
-
-					end
-
-				else
-
-					break
-
-				end
-
-			until BasePart.Velocity.Magnitude > 500 or BasePart.Parent ~= TargetPlayer.Character or TargetPlayer.Parent ~= Players or not TargetPlayer.Character == TCharacter or THumanoid.Sit or Humanoid.Health <= 0 or tick() > Time + TimeToWait
-
-		end
-
-		
-
-		workspace.FallenPartsDestroyHeight = 0/0
-
-		
-
-		local BV = Instance.new("BodyVelocity")
-
-		BV.Name = "EpixVel"
-
-		BV.Parent = RootPart
-
-		BV.Velocity = Vector3.new(9e8, 9e8, 9e8)
-
-		BV.MaxForce = Vector3.new(1/0, 1/0, 1/0)
-
-		
-
-		Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
-
-		
-
-		if TRootPart and THead then
-
-			if (TRootPart.CFrame.p - THead.CFrame.p).Magnitude > 5 then
-
-				SFBasePart(THead)
-
-			else
-
-				SFBasePart(TRootPart)
-
-			end
-
-		elseif TRootPart and not THead then
-
-			SFBasePart(TRootPart)
-
-		elseif not TRootPart and THead then
-
-			SFBasePart(THead)
-
-		elseif not TRootPart and not THead and Accessory and Handle then
-
-			SFBasePart(Handle)
-
-		else
-
-		end
-
-		
-
-		BV:Destroy()
-
-		Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
-
-		workspace.CurrentCamera.CameraSubject = Humanoid
-
-		
-
-		repeat
-
-			RootPart.CFrame = getgenv().OldPos * CFrame.new(0, .5, 0)
-
-			Character:SetPrimaryPartCFrame(getgenv().OldPos * CFrame.new(0, .5, 0))
-
-			Humanoid:ChangeState("GettingUp")
-
-			table.foreach(Character:GetChildren(), function(_, x)
-
-				if x:IsA("BasePart") then
-
-					x.Velocity, x.RotVelocity = Vector3.new(), Vector3.new()
-
-				end
-
-			end)
-
-			task.wait()
-
-		until (RootPart.Position - getgenv().OldPos.p).Magnitude < 25
-
-		workspace.FallenPartsDestroyHeight = getgenv().FPDH
-
+		local tgtHRP = currentTarget.Character:FindFirstChild("HumanoidRootPart")
+		myHRP = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+		if not tgtHRP or not myHRP then return end
+
+		-- Random offset around the target
+		local offset = Vector3.new(
+			math.random(-50, 50) / 10,
+			math.random(-20, 20) / 10,
+			math.random(-50, 50) / 10
+		)
+
+		myHRP.CFrame = tgtHRP.CFrame * CFrame.new(offset)
+
+		-- Strong random velocity and spin
+		myHRP.AssemblyLinearVelocity = Vector3.new(
+			math.random(-500, 500),
+			math.random(300, 700),
+			math.random(-500, 500)
+		)
+
+		myHRP.AssemblyAngularVelocity = Vector3.new(
+			math.random(-20, 20),
+			math.random(-20, 20),
+			math.random(-20, 20)
+		)
+	end)
+end
+
+-- === PLAYER EVENTS ===
+Players.PlayerRemoving:Connect(function(player)
+	if player == currentTarget then
+		warn("Target left. Stopping fling.")
+		stopFling()
+	end
+end)
+
+-- === GUI BUTTON HANDLERS ===
+FlingTarget_Button.MouseButton1Click:Connect(function()
+	local input = trim(TargetNameBox.Text)
+	if input == "" then
+		warn("Enter a player name.")
+		return
+	end
+
+	local target = getPlayerByPartialName(input)
+	if target then
+		startFling(target)
 	else
-
+		warn("Player not found.")
 	end
+end)
 
- end
-
- 
-
- getgenv().Welcome = true
-
- if Targets[1] then for _,x in next, Targets do GetPlayer(x) end else return end
-
- 
-
- if AllBool then
-
-	for _,x in next, Players:GetPlayers() do
-
-		SkidFling(x)
-
-	end
-
- end
-
- 
-
- for _,x in next, Targets do
-
-	if GetPlayer(x) and GetPlayer(x) ~= Player then
-
-		if GetPlayer(x).UserId ~= 1414978355 then
-
-			local TPlayer = GetPlayer(x)
-
-			if TPlayer then
-
-				SkidFling(TPlayer)
-
-			end
-
-		else
-
-		end
-
-	elseif not GetPlayer(x) and not AllBool then
-
-	end
-
- end
-
- end)
+StopFling_Button.MouseButton1Click:Connect(function()
+	stopFling()
+end)
