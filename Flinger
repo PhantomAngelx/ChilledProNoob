@@ -9,7 +9,6 @@ screenGui.Name = "FlingGUI"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
--- Main Frame
 local Target_Section = Instance.new("Frame")
 Target_Section.Name = "Target_Section"
 Target_Section.Size = UDim2.new(0, 200, 0, 200)
@@ -20,7 +19,6 @@ Target_Section.Active = true
 Target_Section.Draggable = true
 Target_Section.Parent = screenGui
 
--- TargetName TextBox
 local TargetNameBox = Instance.new("TextBox")
 TargetNameBox.Name = "TargetNameBox"
 TargetNameBox.Size = UDim2.new(0, 150, 0, 30)
@@ -34,7 +32,6 @@ TargetNameBox.TextColor3 = Color3.fromRGB(0, 0, 0)
 TargetNameBox.ClearTextOnFocus = false
 TargetNameBox.Parent = Target_Section
 
--- Fling Button
 local FlingTarget_Button = Instance.new("TextButton")
 FlingTarget_Button.Name = "FlingTarget_Button"
 FlingTarget_Button.Size = UDim2.new(0, 150, 0, 30)
@@ -49,7 +46,6 @@ FlingTarget_Button.TextScaled = true
 FlingTarget_Button.TextWrapped = true
 FlingTarget_Button.Parent = Target_Section
 
--- Stop Button
 local StopFling_Button = Instance.new("TextButton")
 StopFling_Button.Name = "StopFling_Button"
 StopFling_Button.Size = UDim2.new(0, 150, 0, 30)
@@ -97,8 +93,8 @@ local function stopFling()
 	if myChar then
 		local myHRP = myChar:FindFirstChild("HumanoidRootPart")
 		if myHRP then
-			myHRP.AssemblyLinearVelocity = Vector3.zero
-			myHRP.AssemblyAngularVelocity = Vector3.zero
+			myHRP.Velocity = Vector3.zero
+			myHRP.RotVelocity = Vector3.zero
 			if originalCFrame then
 				myHRP.CFrame = originalCFrame
 			end
@@ -128,6 +124,14 @@ local function startFling(targetPlayer)
 	originalCFrame = myHRP.CFrame
 	currentTarget = targetPlayer
 
+	myChar:WaitForChild("Humanoid"):ChangeState(Enum.HumanoidStateType.Physics)
+	myHRP.Anchored = false
+
+	local BodyVelocity = Instance.new("BodyVelocity")
+	BodyVelocity.Velocity = Vector3.new(1e6, 1e6, 1e6)
+	BodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+	BodyVelocity.Parent = myHRP
+
 	flingConnection = RunService.Heartbeat:Connect(function()
 		if not currentTarget or not currentTarget.Character then
 			stopFling()
@@ -138,27 +142,9 @@ local function startFling(targetPlayer)
 		myHRP = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 		if not tgtHRP or not myHRP then return end
 
-		-- Random offset around the target
-		local offset = Vector3.new(
-			math.random(-50, 50) / 10,
-			math.random(-20, 20) / 10,
-			math.random(-50, 50) / 10
-		)
-
-		myHRP.CFrame = tgtHRP.CFrame * CFrame.new(offset)
-
-		-- Strong random velocity and spin
-		myHRP.AssemblyLinearVelocity = Vector3.new(
-			math.random(-500, 500),
-			math.random(300, 700),
-			math.random(-500, 500)
-		)
-
-		myHRP.AssemblyAngularVelocity = Vector3.new(
-			math.random(-20, 20),
-			math.random(-20, 20),
-			math.random(-20, 20)
-		)
+		myHRP.CFrame = tgtHRP.CFrame * CFrame.new(0, 1, 0)
+		myHRP.Velocity = Vector3.new(9e8, 9e8, 9e8)
+		myHRP.RotVelocity = Vector3.new(9e8, 9e8, 9e8)
 	end)
 end
 
