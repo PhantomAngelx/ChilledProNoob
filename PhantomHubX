@@ -61,6 +61,12 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/LiarRise/FLN-X/refs/h
 
 end)
 
+tab.newButton("Flinger", "", function()
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Flinger"))()
+
+end)
+
 local tab = DrRayLibrary.newTab("Rockets and Lag","")
 
 tab.newButton("Rocket Lock Script", "", function()
