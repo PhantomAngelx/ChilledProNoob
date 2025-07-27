@@ -142,7 +142,7 @@ RocketsTab:CreateButton({
    end
 })
 
-FlingsTab:CreateButton({
+RocketsTab:CreateButton({
    Name = "Phantom Spam Rockets2",
    Callback = function()
       loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Rocket%20Spam%202"))()
@@ -161,7 +161,7 @@ SmokeTab:CreateButton({
 local HubsTab = Window:CreateTab("Hubs", 4483362458)
 FlingsTab:CreateSection("Hubs")
 
-RocketsTab:CreateButton({
+HubsTab:CreateButton({
    Name = "Rochips panel",
    Callback = function()
       loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-rochips-panel-34286"))()
@@ -192,7 +192,7 @@ HubsTab:CreateButton({
 local OthersTab = Window:CreateTab("Others", 4483362458)
 FlingsTab:CreateSection("Others")
 
-SmokeTab:CreateButton({
+OthersTab:CreateButton({
    Name = "Shiftlock",
    Callback = function()
       ("https://rawscripts.net/raw/Universal-Script-Universal-Shiftlock-No-Disappear-after-die-23318"))()
