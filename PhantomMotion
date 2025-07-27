@@ -1,95 +1,276 @@
 loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Whitelist%20people"))()
 
-debugX = true
-
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
    Name = "PhantomMotion",
-   Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
+   Icon = 0,
    LoadingTitle = "Rayfield Interface Suite",
    LoadingSubtitle = "by Sirius",
-   Theme = "Default", -- Check https://docs.sirius.menu/rayfield/configuration/themes
-
+   Theme = "Default",
    DisableRayfieldPrompts = false,
-   DisableBuildWarnings = false, -- Prevents Rayfield from warning when the script has a version mismatch with the interface
+   DisableBuildWarnings = false,
 
    ConfigurationSaving = {
       Enabled = true,
-      FolderName = nil, -- Create a custom folder for your hub/game
+      FolderName = nil,
       FileName = "Big Hub"
    },
 
    Discord = {
-      Enabled = false, -- Prompt the user to join your Discord server if their executor supports it
-      Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ ABCD would be ABCD
-      RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+      Enabled = false,
+      Invite = "noinvitelink",
+      RememberJoins = true
    },
 
-   KeySystem = false, -- Set this to true to use our key system
+   KeySystem = false,
    KeySettings = {
       Title = "Untitled",
       Subtitle = "Key System",
-      Note = "No method of obtaining the key is provided", -- Use this to tell the user how to get a key
-      FileName = "Key", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
-      SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
-      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
-      Key = {"Hello"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
+      Note = "No method of obtaining the key is provided",
+      FileName = "Key",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = {"Hello"}
    }
 })
 
-local Tab = Window:CreateTab("Admins", 4483362458) -- Title, Image
+local AdminsTab = Window:CreateTab("Admins", 4483362458)
+AdminsTab:CreateSection("Admins")
 
-local Section = Tab:CreateSection("Admins")
-
-local Button = Tab:CreateButton({
+AdminsTab:CreateButton({
    Name = "NamelessAdmin",
-   Callback = loadstring(game:HttpGet("https://raw.githubusercontent.com/ltseverydayyou/Nameless-Admin/main/Source.lua"))()
-   end,
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/ltseverydayyou/Nameless-Admin/main/Source.lua"))()
+   end
 })
 
-local Button = Tab:CreateButton({
+AdminsTab:CreateButton({
    Name = "Old NamelessAdmin",
-   Callback = loadstring(game:HttpGet("https://raw.githubusercontent.com/FilteringEnabled/NamelessAdmin/main/Source"))()
-   end,
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/FilteringEnabled/NamelessAdmin/main/Source"))()
+   end
 })
 
-local Button = Tab:CreateButton({
+AdminsTab:CreateButton({
    Name = "SystemBroken",
-   Callback = loadstring(game:HttpGet("https://raw.githubusercontent.com/H20CalibreYT/SystemBroken/main/script"))()
-   end,
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/H20CalibreYT/SystemBroken/main/script"))()
+   end
 })
 
-local Tab = Window:CreateTab("Flings", 4483362458) -- Title, Image
+local FlingsTab = Window:CreateTab("Flings", 4483362458)
+FlingsTab:CreateSection("Flings")
 
-local Section = Tab:CreateSection("Flings")
-
-local Button = Tab:CreateButton({
+FlingsTab:CreateButton({
    Name = "Auto Fling",
-   Callback = loadstring(game:HttpGet('https://raw.githubusercontent.com/GhostPlayer352/Test4/main/Auto%20Fling%20Player'))()
-   end,
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/GhostPlayer352/Test4/main/Auto%20Fling%20Player"))()
+   end
 })
 
-local Button = Tab:CreateButton({
+FlingsTab:CreateButton({
    Name = "Time Blackhole fling",
-   Callback = loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Time%20Blackhole"))()
-   end,
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Time%20Blackhole"))()
+   end
 })
 
-local Button = Tab:CreateButton({
+FlingsTab:CreateButton({
    Name = "Freeze Detect Fling",
-   Callback = loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOfficial/refs/heads/main/Fling-With-Freeze-Detection"))()
-   end,
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOfficial/refs/heads/main/Fling-With-Freeze-Detection"))()
+   end
 })
 
-local Button = Tab:CreateButton({
+FlingsTab:CreateButton({
    Name = "ZNX Blackhole",
-   Callback = loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOfficial/refs/heads/main/Blackhole"))()
-   end,
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOfficial/refs/heads/main/Blackhole"))()
+   end
 })
 
-local Button = Tab:CreateButton({
+FlingsTab:CreateButton({
    Name = "Multi fling",
-   Callback = loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Ultimate-Fling-GUI-41909"))()
-   end,
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Ultimate-Fling-GUI-41909"))()
+   end
+})
+
+FlingsTab:CreateButton({
+   Name = "TouchFling",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/LiarRise/FLN-X/refs/heads/main/README.md"))()
+   end
+})
+
+FlingsTab:CreateButton({
+   Name = "Cfling",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/ZLSop/ZLS/refs/heads/main/ZLSFLXFG.lua.txt"))()
+   end
+})
+
+FlingsTab:CreateButton({
+   Name = "Flinger",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Flinger"))()
+   end
+})
+
+local RocketsTab = Window:CreateTab("Rockets", 4483362458)
+FlingsTab:CreateSection("Rockets")
+
+RocketsTab:CreateButton({
+   Name = "Rocket Lock Script",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOfficial/refs/heads/main/Rocket.lua"))()
+   end
+})
+
+RocketsTab:CreateButton({
+   Name = "No Cooldown",
+   Callback = function()
+      loadstring(game:HttpGet("https://pastebin.com/raw/cKa7EseS"))()
+   end
+})
+
+RocketsTab:CreateButton({
+   Name = "Phantom Spam Rockets1",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Phantom%20Rocket%20Spam"))()
+   end
+})
+
+FlingsTab:CreateButton({
+   Name = "Phantom Spam Rockets2",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Rocket%20Spam%202"))()
+   end
+})
+
+local SmokeTab = Window:CreateTab("Smoke", 4483362458)
+FlingsTab:CreateSection("Smoke")
+
+SmokeTab:CreateButton({
+   Name = "PhantomSmoke",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Phantom%20Smoke"))()
+})
+
+local HubsTab = Window:CreateTab("Hubs", 4483362458)
+FlingsTab:CreateSection("Hubs")
+
+RocketsTab:CreateButton({
+   Name = "Rochips panel",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-rochips-panel-34286"))()
+   end
+})
+
+HubsTab:CreateButton({
+   Name = "GhostHub",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-GhostHub-16534"))()
+   end
+})
+
+HubsTab:CreateButton({
+   Name = "KaterHub",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Katerhub-V3-29433"))()
+   end
+})
+
+HubsTab:CreateButton({
+   Name = "Player spy",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Spy-Players-Gui-26677"))()
+   end
+})
+
+local OthersTab = Window:CreateTab("Others", 4483362458)
+FlingsTab:CreateSection("Others")
+
+SmokeTab:CreateButton({
+   Name = "Shiftlock",
+   Callback = function()
+      ("https://rawscripts.net/raw/Universal-Script-Universal-Shiftlock-No-Disappear-after-die-23318"))()
+})
+
+OthersTab:CreateButton({
+   Name = "TimeHolering",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Time%20Hole%20Ring"))()
+   end
+})
+
+OthersTab:CreateButton({
+   Name = "Fly",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Universal-fly-script-28708"))()
+   end
+})
+
+OthersTab:CreateButton({
+   Name = "Quiz Bot",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Quiz-Bot-official-25907"))()
+   end
+})
+
+OthersTab:CreateButton({
+   Name = "Reach",
+   Callback = function()
+      loadstring(game:HttpGet("https://pastefy.app/a8GiMLXr/raw"))()
+   end
+})
+
+OthersTab:CreateButton({
+   Name = "Hitbox",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Universal-Hitbox-Expander-30502"))()
+   end
+})
+
+OthersTab:CreateButton({
+   Name = "Dances",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Epik-R6-Dancezz-42246"))()
+   end
+})
+
+OthersTab:CreateButton({
+   Name = "Sword fighting bot",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Sword-Fighting-Bot-33372"))()
+   end
+})
+
+OthersTab:CreateButton({
+   Name = "StreamSniper",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/Guest3D/ZirconHub/refs/heads/main/StreamSniper.lua"))()
+   end
+})
+
+OthersTab:CreateButton({
+   Name = "Invisible",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Invisible-FE-19153"))()
+   end
+})
+
+OthersTab:CreateButton({
+   Name = "MessageSpam",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/MessageSpam"))()
+   end
+})
+
+OthersTab:CreateButton({
+   Name = "BaseClaim",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/BaseClaim"))()
+   end
 })
