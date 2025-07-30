@@ -1,0 +1,19 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local OrgDestroyHeight = -500
+local LocalPlayer = Players.LocalPlayer
+local HumanoidRootPart
+local Connection
+
+local function getHRP()
+    local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    return char:WaitForChild("HumanoidRootPart", 5)
+end
+
+Connection = RunService.Stepped:Connect(function()
+    HumanoidRootPart = getHRP()
+    if HumanoidRootPart and HumanoidRootPart.Position.Y <= OrgDestroyHeight + 25 then
+        HumanoidRootPart.Velocity = Vector3.new(0, 250, 0)
+    end
+end)
