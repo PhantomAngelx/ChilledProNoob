@@ -1,184 +1,69 @@
--- === SERVICES ===
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local LocalPlayer = Players.LocalPlayer
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local hrp = character:WaitForChild("HumanoidRootPart")
 
--- === GUI Setup ===
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "FlingGUI"
-screenGui.ResetOnSpawn = false
-screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+local tycoonsFolder = workspace:WaitForChild("Tycoons"):WaitForChild("Tycoons")
 
-local Target_Section = Instance.new("Frame")
-Target_Section.Name = "Target_Section"
-Target_Section.Size = UDim2.new(0, 200, 0, 200)
-Target_Section.Position = UDim2.new(0, 50, 0, 50)
-Target_Section.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-Target_Section.BorderSizePixel = 0
-Target_Section.Active = true
-Target_Section.Draggable = true
-Target_Section.Parent = screenGui
+-- A table to track all givers already attached
+local attachedGivers = {}
 
-local TargetNameBox = Instance.new("TextBox")
-TargetNameBox.Name = "TargetNameBox"
-TargetNameBox.Size = UDim2.new(0, 150, 0, 30)
-TargetNameBox.Position = UDim2.new(0, 25, 0, 50)
-TargetNameBox.PlaceholderText = "Enter target name"
-TargetNameBox.Text = ""
-TargetNameBox.TextScaled = true
-TargetNameBox.Font = Enum.Font.Oswald
-TargetNameBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-TargetNameBox.TextColor3 = Color3.fromRGB(0, 0, 0)
-TargetNameBox.ClearTextOnFocus = false
-TargetNameBox.Parent = Target_Section
+-- Function to process a giver
+local function attachGiver(giver)
+	if attachedGivers[giver] then return end -- Already processed
+	attachedGivers[giver] = true
 
-local FlingTarget_Button = Instance.new("TextButton")
-FlingTarget_Button.Name = "FlingTarget_Button"
-FlingTarget_Button.Size = UDim2.new(0, 150, 0, 30)
-FlingTarget_Button.Position = UDim2.new(0, 25, 0, 100)
-FlingTarget_Button.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
-FlingTarget_Button.BackgroundTransparency = 0.5
-FlingTarget_Button.BorderSizePixel = 0
-FlingTarget_Button.Font = Enum.Font.Oswald
-FlingTarget_Button.Text = "Fling"
-FlingTarget_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
-FlingTarget_Button.TextScaled = true
-FlingTarget_Button.TextWrapped = true
-FlingTarget_Button.Parent = Target_Section
+	-- If it's a model, prepare and weld it
+	if giver:IsA("Model") then
+		local primary = giver.PrimaryPart or giver:FindFirstChildWhichIsA("BasePart")
+		if primary then
+			giver.PrimaryPart = primary
+			for _, part in ipairs(giver:GetDescendants()) do
+				if part:IsA("BasePart") then
+					part.CanCollide = true
+					part.Transparency = 0.5
+					part.Anchored = false
 
-local StopFling_Button = Instance.new("TextButton")
-StopFling_Button.Name = "StopFling_Button"
-StopFling_Button.Size = UDim2.new(0, 150, 0, 30)
-StopFling_Button.Position = UDim2.new(0, 25, 0, 140)
-StopFling_Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-StopFling_Button.BackgroundTransparency = 0.5
-StopFling_Button.BorderSizePixel = 0
-StopFling_Button.Font = Enum.Font.Oswald
-StopFling_Button.Text = "Stop"
-StopFling_Button.TextColor3 = Color3.fromRGB(0, 0, 0)
-StopFling_Button.TextScaled = true
-StopFling_Button.TextWrapped = true
-StopFling_Button.Parent = Target_Section
-
--- === VARIABLES ===
-local flingConnection = nil
-local currentTarget = nil
-local originalCFrame = nil
-
--- === UTILITY FUNCTIONS ===
-local function trim(str)
-	return str:match("^%s*(.-)%s*$")
-end
-
-local function getPlayerByPartialName(namePart)
-	local lowerName = namePart:lower()
-	for _, player in ipairs(Players:GetPlayers()) do
-		if player ~= LocalPlayer and player.Name:lower():sub(1, #lowerName) == lowerName then
-			return player
-		end
-	end
-	return nil
-end
-
--- === FLING FUNCTIONS ===
-local function stopFling()
-	if flingConnection then
-		flingConnection:Disconnect()
-		flingConnection = nil
-	end
-
-	currentTarget = nil
-
-	local myChar = LocalPlayer.Character
-	if myChar then
-		local myHRP = myChar:FindFirstChild("HumanoidRootPart")
-		if myHRP and originalCFrame then
-			myHRP.AssemblyLinearVelocity = Vector3.zero
-			myHRP.AssemblyAngularVelocity = Vector3.zero
-			myHRP.CFrame = originalCFrame
-		end
-	end
-
-	originalCFrame = nil
-end
-
-local function startFling(targetPlayer)
-	stopFling()
-
-	if not targetPlayer or not targetPlayer.Character then
-		warn("Invalid target.")
-		return
-	end
-
-	local targetHRP = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
-	local myChar = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-	local myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
-
-	if not targetHRP or not myHRP then
-		warn("Missing HumanoidRootPart.")
-		return
-	end
-
-	-- Save original CFrame
-	originalCFrame = myHRP.CFrame
-	currentTarget = targetPlayer
-
-	-- Enable physics + unanchor
-	myChar:WaitForChild("Humanoid"):ChangeState(Enum.HumanoidStateType.Physics)
-	myHRP.Anchored = false
-
-	-- Optional: Prevent death by void
-	pcall(function()
-		workspace.FallenPartsDestroyHeight = 0 / 0
-	end)
-
-	-- Start fling loop
-	flingConnection = RunService.PostSimulation:Connect(function()
-		if not currentTarget or not currentTarget.Character then
-			stopFling()
-			return
+					local weld = Instance.new("WeldConstraint")
+					weld.Part0 = hrp
+					weld.Part1 = part
+					weld.Parent = part
+				end
+			end
+			giver:SetPrimaryPartCFrame(hrp.CFrame)
+			giver.Parent = workspace -- just in case it's elsewhere
 		end
 
-		local thrp = currentTarget.Character:FindFirstChild("HumanoidRootPart")
-		if not thrp then return end
+	elseif giver:IsA("BasePart") then
+		-- Single part
+		giver.CanCollide = true
+		giver.Transparency = 0.5
+		giver.Anchored = false
 
-		-- Reassign in case of respawn
-		myHRP = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-		if not myHRP then return end
+		local weld = Instance.new("WeldConstraint")
+		weld.Part0 = hrp
+		weld.Part1 = giver
+		weld.Parent = giver
+		giver.CFrame = hrp.CFrame
+		giver.Parent = workspace
 
-		-- Calculate chaotic position and apply extreme velocity
-		local offset = Vector3.new(0, -2, 0) + thrp.Velocity * (0.55 + math.random() * (0.4))
-		myHRP.CFrame = CFrame.new(thrp.Position + offset) * CFrame.Angles(math.rad(myHRP.Orientation.X), 0, math.rad(myHRP.Orientation.Z))
-
-		myHRP.AssemblyLinearVelocity = Vector3.new(10e30, 10e30, 10e30)
-		myHRP.AssemblyAngularVelocity = Vector3.new(10e30, 10e30, 10e30)
-	end)
+	elseif giver:IsA("Tool") then
+		-- Give tools to the backpack
+		giver.Parent = player.Backpack
+	end
 end
 
--- === PLAYER EVENTS ===
-Players.PlayerRemoving:Connect(function(player)
-	if player == currentTarget then
-		warn("Target left. Stopping fling.")
-		stopFling()
+-- Loop to continuously check for new givers
+while true do
+	for _, tycoon in ipairs(tycoonsFolder:GetChildren()) do
+		local purchased = tycoon:FindFirstChild("PurchasedObjects")
+		if purchased then
+			for _, folder in ipairs(purchased:GetChildren()) do
+				local giver = folder:FindFirstChild("Giver")
+				if giver then
+					attachGiver(giver)
+				end
+			end
+		end
 	end
-end)
-
--- === GUI BUTTON HANDLERS ===
-FlingTarget_Button.MouseButton1Click:Connect(function()
-	local input = trim(TargetNameBox.Text)
-	if input == "" then
-		warn("Enter a player name.")
-		return
-	end
-
-	local target = getPlayerByPartialName(input)
-	if target then
-		startFling(target)
-	else
-		warn("Player not found.")
-	end
-end)
-
-StopFling_Button.MouseButton1Click:Connect(function()
-	stopFling()
-end)
+	task.wait(3) -- Adjust how frequently it checks for new givers
+end
