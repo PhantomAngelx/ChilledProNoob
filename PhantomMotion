@@ -10,19 +10,16 @@ local Window = Rayfield:CreateWindow({
    Theme = "Default",
    DisableRayfieldPrompts = false,
    DisableBuildWarnings = false,
-
    ConfigurationSaving = {
       Enabled = true,
       FolderName = nil,
       FileName = "Big Hub"
    },
-
    Discord = {
       Enabled = false,
       Invite = "noinvitelink",
       RememberJoins = true
    },
-
    KeySystem = false,
    KeySettings = {
       Title = "Untitled",
@@ -119,7 +116,7 @@ FlingsTab:CreateButton({
 })
 
 local RocketsTab = Window:CreateTab("Rockets", 4483362458)
-FlingsTab:CreateSection("Rockets")
+RocketsTab:CreateSection("Rockets")
 
 RocketsTab:CreateButton({
    Name = "Rocket Lock Script",
@@ -150,16 +147,17 @@ RocketsTab:CreateButton({
 })
 
 local SmokeTab = Window:CreateTab("Smoke", 4483362458)
-FlingsTab:CreateSection("Smoke")
+SmokeTab:CreateSection("Smoke")
 
 SmokeTab:CreateButton({
    Name = "PhantomSmoke",
    Callback = function()
       loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Phantom%20Smoke"))()
+   end
 })
 
 local HubsTab = Window:CreateTab("Hubs", 4483362458)
-FlingsTab:CreateSection("Hubs")
+HubsTab:CreateSection("Hubs")
 
 HubsTab:CreateButton({
    Name = "Rochips panel",
@@ -190,12 +188,13 @@ HubsTab:CreateButton({
 })
 
 local OthersTab = Window:CreateTab("Others", 4483362458)
-FlingsTab:CreateSection("Others")
+OthersTab:CreateSection("Others")
 
 OthersTab:CreateButton({
    Name = "Shiftlock",
    Callback = function()
-      ("https://rawscripts.net/raw/Universal-Script-Universal-Shiftlock-No-Disappear-after-die-23318"))()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Universal-Shiftlock-No-Disappear-after-die-23318"))()
+   end
 })
 
 OthersTab:CreateButton({
