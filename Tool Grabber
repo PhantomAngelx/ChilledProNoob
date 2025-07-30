@@ -1,0 +1,94 @@
+local player = game.Players.LocalPlayer
+
+-- GUI Creation
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "ToolGrabberGUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Name = "MainFrame"
+frame.Size = UDim2.new(0, 250, 0, 150)
+frame.Position = UDim2.new(0.5, -125, 0.5, -75)
+frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+frame.BorderSizePixel = 0
+frame.BackgroundTransparency = 0.1
+frame.Active = true
+frame.Draggable = true
+frame.Selectable = true
+frame.Parent = screenGui
+
+local title = Instance.new("TextLabel")
+title.Name = "Title"
+title.Size = UDim2.new(1, 0, 0.3, 0)
+title.Position = UDim2.new(0, 0, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Tool Grabber"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.SourceSansBold
+title.TextScaled = true
+title.Parent = frame
+
+local startButton = Instance.new("TextButton")
+startButton.Name = "StartButton"
+startButton.Size = UDim2.new(0.8, 0, 0.25, 0)
+startButton.Position = UDim2.new(0.1, 0, 0.4, 0)
+startButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+startButton.Text = "Start"
+startButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+startButton.Font = Enum.Font.SourceSansBold
+startButton.TextScaled = true
+startButton.Parent = frame
+
+local stopButton = Instance.new("TextButton")
+stopButton.Name = "StopButton"
+stopButton.Size = UDim2.new(0.8, 0, 0.25, 0)
+stopButton.Position = UDim2.new(0.1, 0, 0.7, 0)
+stopButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+stopButton.Text = "Stop"
+stopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+stopButton.Font = Enum.Font.SourceSansBold
+stopButton.TextScaled = true
+stopButton.Parent = frame
+
+-- Tool grabbing control
+local isCollecting = false
+local lastTime = 0
+local interval = 0.1
+
+-- Button behavior
+startButton.MouseButton1Click:Connect(function()
+	isCollecting = true
+	startButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0) -- Green = active
+end)
+
+stopButton.MouseButton1Click:Connect(function()
+	isCollecting = false
+	startButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0) -- Back to red
+end)
+
+-- Tool grabbing loop
+game:GetService("RunService").Heartbeat:Connect(function()
+	if not isCollecting then return end
+
+	if tick() - lastTime >= interval then
+		lastTime = tick()
+
+		local char = player.Character
+		if char and char:FindFirstChild("HumanoidRootPart") then
+			for _, part in pairs(workspace:GetDescendants()) do
+				if part:IsA("Part") and part.Name:lower():find("giver") then
+					firetouchinterest(char.HumanoidRootPart, part, 0)
+					wait(0.05)
+					firetouchinterest(char.HumanoidRootPart, part, 1)
+				end
+			end
+		end
+	end
+end)
+
+-- Reset timer when character respawns
+player.CharacterAdded:Connect(function()
+	wait(0.1)
+	lastTime = tick()
+end)
