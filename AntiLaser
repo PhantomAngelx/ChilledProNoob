@@ -1,0 +1,117 @@
+local player = game.Players.LocalPlayer
+local savedLasers = {} -- Store lasers and their original properties
+
+-- GUI Creation (same as before) --
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "AntiLaser"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Name = "MainFrame"
+frame.Size = UDim2.new(0, 200, 0, 120)
+frame.Position = UDim2.new(0.5, -100, 0.5, -60)
+frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+frame.BorderSizePixel = 0
+frame.BackgroundTransparency = 0.1
+frame.Active = true
+frame.Draggable = true
+frame.Selectable = true
+frame.Parent = screenGui
+
+local title = Instance.new("TextLabel")
+title.Name = "Title"
+title.Size = UDim2.new(1, 0, 0.3, 0)
+title.Position = UDim2.new(0, 0, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "AntiLaser"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.SourceSansBold
+title.TextScaled = true
+title.Parent = frame
+
+local closeButton = Instance.new("TextButton")
+closeButton.Name = "CloseButton"
+closeButton.Size = UDim2.new(0, 25, 0, 25)
+closeButton.Position = UDim2.new(1, -30, 0, 5)
+closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+closeButton.Text = "X"
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.Font = Enum.Font.SourceSansBold
+closeButton.TextScaled = true
+closeButton.Parent = frame
+
+closeButton.MouseButton1Click:Connect(function()
+	screenGui.Enabled = false
+end)
+
+local startButton = Instance.new("TextButton")
+startButton.Name = "StartButton"
+startButton.Size = UDim2.new(0.8, 0, 0.25, 0)
+startButton.Position = UDim2.new(0.1, 0, 0.4, 0)
+startButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+startButton.Text = "Start"
+startButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+startButton.Font = Enum.Font.SourceSansBold
+startButton.TextScaled = true
+startButton.Parent = frame
+
+local stopButton = Instance.new("TextButton")
+stopButton.Name = "StopButton"
+stopButton.Size = UDim2.new(0.8, 0, 0.25, 0)
+stopButton.Position = UDim2.new(0.1, 0, 0.7, 0)
+stopButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+stopButton.Text = "Stop"
+stopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+stopButton.Font = Enum.Font.SourceSansBold
+stopButton.TextScaled = true
+stopButton.Parent = frame
+
+-- Disable lasers by setting CanCollide and CanTouch to false, and store original values
+local function disableLasers()
+	savedLasers = {}
+	local tycoonsFolder = workspace:WaitForChild("Tycoons"):WaitForChild("Tycoons")
+	
+	for _, tycoon in pairs(tycoonsFolder:GetChildren()) do
+		local purchasedObjects = tycoon:FindFirstChild("PurchasedObjects")
+		if purchasedObjects then
+			local door = purchasedObjects:FindFirstChild("OwnerOnlyDoor")
+			if door then
+				local lasers = door:FindFirstChild("Lasers")
+				if lasers then
+					for _, laser in ipairs(lasers:GetChildren()) do
+						if laser:IsA("BasePart") then
+							savedLasers[laser] = {
+								CanCollide = laser.CanCollide,
+								CanTouch = laser.CanTouch
+							}
+							laser.CanCollide = false
+							laser.CanTouch = false
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+-- Restore lasers to original CanCollide and CanTouch values
+local function enableLasers()
+	for laser, props in pairs(savedLasers) do
+		if laser and laser.Parent then
+			laser.CanCollide = props.CanCollide
+			laser.CanTouch = props.CanTouch
+		end
+	end
+	savedLasers = {}
+end
+
+startButton.MouseButton1Click:Connect(function()
+	startButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0) -- Green
+	disableLasers()
+end)
+
+stopButton.MouseButton1Click:Connect(function()
+	startButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0) -- Red
+	enableLasers()
+end)
