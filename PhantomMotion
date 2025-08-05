@@ -56,6 +56,13 @@ AdminsTab:CreateButton({
    end
 })
 
+AdminsTab:CreateButton({
+   Name = "NamelessAdmin test",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/ltseverydayyou/Nameless-Admin/refs/heads/main/NA%20testing.lua"))()
+   end
+})
+
 local FlingsTab = Window:CreateTab("Flings", 4483362458)
 FlingsTab:CreateSection("Flings")
 
@@ -84,6 +91,13 @@ FlingsTab:CreateButton({
    Name = "ZNX Blackhole",
    Callback = function()
       loadstring(game:HttpGet("https://raw.githubusercontent.com/ZNX-GHAZITAB/ZnxOfficial/refs/heads/main/Blackhole"))()
+   end
+})
+
+FlingsTab:CreateButton({
+   Name = "FlingManual",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Fling-gui-troll-17597"))()
    end
 })
 
@@ -139,13 +153,6 @@ RocketsTab:CreateButton({
    end
 })
 
-RocketsTab:CreateButton({
-   Name = "Phantom Spam Rockets2",
-   Callback = function()
-      loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Rocket%20Spam%202"))()
-   end
-})
-
 local SmokeTab = Window:CreateTab("Smoke", 4483362458)
 SmokeTab:CreateSection("Smoke")
 
@@ -153,6 +160,40 @@ SmokeTab:CreateButton({
    Name = "PhantomSmoke",
    Callback = function()
       loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Phantom%20Smoke"))()
+   end
+})
+
+local AutoTab = Window:CreateTab("Auto", 4483362458)
+AutoTab:CreateSection("Auto")
+
+AutoTab:CreateButton({
+   Name = "Tool grab",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL-/refs/heads/main/Tool%20Grabber"))()
+   end
+})
+
+AutoTab:CreateButton({
+   Name = "Equip Tools",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL-/refs/heads/main/Equip%20Tools"))()
+   end
+})
+
+local AntiTab = Window:CreateTab("Anti", 4483362458)
+AntiTab:CreateSection("Anti")
+
+AntiTab:CreateButton({
+   Name = "Antivoid",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL-/refs/heads/main/Antivoid"))()
+   end
+})
+
+AntiTab:CreateButton({
+   Name = "AntiLaser",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL-/main/AntiLaser"))()
    end
 })
 
@@ -184,6 +225,20 @@ HubsTab:CreateButton({
    Name = "Player spy",
    Callback = function()
       loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Spy-Players-Gui-26677"))()
+   end
+})
+
+HubsTab:CreateButton({
+   Name = "Infinite yield",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Infinite-Yield-43437"))()
+   end
+})
+
+HubsTab:CreateButton({
+   Name = "Sirius",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Sirius-7420"))()
    end
 })
 
@@ -271,5 +326,12 @@ OthersTab:CreateButton({
    Name = "BaseClaim",
    Callback = function()
       loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/BaseClaim"))()
+   end
+})
+
+OthersTab:CreateButton({
+   Name = "PlayerTeleport",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL-/refs/heads/main/PlayerTeleport"))()
    end
 })
