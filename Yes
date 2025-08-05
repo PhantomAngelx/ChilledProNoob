@@ -1,0 +1,173 @@
+local player = game.Players.LocalPlayer
+local players = game.Players
+local selectedPlayer = nil
+
+-- GUI Setup
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "TeleportGui"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 200, 0, 240)
+frame.Position = UDim2.new(0.5, -100, 0.5, -120)
+frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+frame.BorderSizePixel = 0
+frame.BackgroundTransparency = 0.1
+frame.Active = true
+frame.Draggable = true
+frame.Selectable = true
+frame.Parent = screenGui
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 26)
+title.Position = UDim2.new(0, 0, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Teleport to Player"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.SourceSansBold
+title.TextScaled = true
+title.Parent = frame
+
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 24, 0, 24)
+closeButton.Position = UDim2.new(1, -28, 0, 2)
+closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+closeButton.Text = "X"
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.Font = Enum.Font.SourceSansBold
+closeButton.TextScaled = true
+closeButton.Parent = frame
+
+closeButton.MouseButton1Click:Connect(function()
+	screenGui.Enabled = false
+end)
+
+-- ScrollingFrame for player list
+local scrollFrame = Instance.new("ScrollingFrame")
+scrollFrame.Size = UDim2.new(1, -10, 1, -70)
+scrollFrame.Position = UDim2.new(0, 5, 0, 30)
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+scrollFrame.ScrollBarThickness = 5
+scrollFrame.BackgroundTransparency = 1
+scrollFrame.Parent = frame
+
+local layout = Instance.new("UIListLayout")
+layout.Padding = UDim.new(0, 3)
+layout.SortOrder = Enum.SortOrder.Name
+layout.Parent = scrollFrame
+
+-- Teleport Button
+local teleportButton = Instance.new("TextButton")
+teleportButton.Size = UDim2.new(0.9, 0, 0, 28)
+teleportButton.Position = UDim2.new(0.05, 0, 1, -33)
+teleportButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+teleportButton.Text = "Teleport"
+teleportButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+teleportButton.Font = Enum.Font.SourceSansBold
+teleportButton.TextScaled = true
+teleportButton.Parent = frame
+
+-- Store buttons for selection
+local playerButtons = {}
+
+-- Teleport function
+local function teleportTo(target)
+	if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+		local myChar = player.Character or player.CharacterAdded:Wait()
+		local myRoot = myChar:WaitForChild("HumanoidRootPart")
+		myRoot.CFrame = target.Character.HumanoidRootPart.CFrame + Vector3.new(2, 0, 0)
+	end
+end
+
+-- Deselect all buttons
+local function deselectAll()
+	for _, btn in pairs(playerButtons) do
+		btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	end
+	selectedPlayer = nil
+end
+
+-- Add player button
+local function addPlayerButton(targetPlayer)
+	if targetPlayer == player then return end
+
+	local button = Instance.new("TextButton")
+	button.Size = UDim2.new(1, 0, 0, 36)
+	button.Text = string.format("%s\n(@%s)", targetPlayer.DisplayName, targetPlayer.Name)
+	button.TextColor3 = Color3.fromRGB(255, 255, 255)
+	button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	button.Font = Enum.Font.SourceSans
+	button.TextWrapped = true
+	button.TextScaled = true
+	button.Parent = scrollFrame
+
+	playerButtons[targetPlayer] = button
+
+	button.MouseButton1Click:Connect(function()
+		deselectAll()
+		button.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+		selectedPlayer = targetPlayer
+	end)
+end
+
+-- Add neutral "None" button at the top
+local function addNoneButton()
+	local noneButton = Instance.new("TextButton")
+	noneButton.Size = UDim2.new(1, 0, 0, 32)
+	noneButton.Text = "🚫 None (Cancel Selection)"
+	noneButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+	noneButton.BackgroundColor3 = Color3.fromRGB(100, 50, 50)
+	noneButton.Font = Enum.Font.SourceSansBold
+	noneButton.TextScaled = true
+	noneButton.Parent = scrollFrame
+
+	noneButton.MouseButton1Click:Connect(function()
+		deselectAll()
+	end)
+end
+
+-- Refresh player list
+local function refreshPlayerList()
+	local previousSelection = selectedPlayer
+
+	-- Clear all buttons
+	for _, btn in pairs(scrollFrame:GetChildren()) do
+		if btn:IsA("TextButton") then
+			btn:Destroy()
+		end
+	end
+
+	playerButtons = {}
+	selectedPlayer = nil
+
+	addNoneButton()
+
+	for _, p in ipairs(players:GetPlayers()) do
+		addPlayerButton(p)
+	end
+
+	-- Restore selection if still valid
+	if previousSelection and players:FindFirstChild(previousSelection.Name) then
+		local button = playerButtons[previousSelection]
+		if button then
+			button.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+			selectedPlayer = previousSelection
+		end
+	end
+
+	task.wait()
+	scrollFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 6)
+end
+
+-- Teleport button click
+teleportButton.MouseButton1Click:Connect(function()
+	if selectedPlayer then
+		teleportTo(selectedPlayer)
+	end
+end)
+
+-- Initial population and live updates
+refreshPlayerList()
+players.PlayerAdded:Connect(refreshPlayerList)
+players.PlayerRemoving:Connect(refreshPlayerList)
