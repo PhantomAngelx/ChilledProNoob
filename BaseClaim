@@ -1,5 +1,3 @@
-loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Whitelist%20people"))(
-
 local p = game.Players.LocalPlayer
 local c = p.Character or p.CharacterAdded:Wait()
 local names = {"Red Base","Black Base","Pink Base","Orange Base","Purple Base","Yellow Base","Blue Base"}
