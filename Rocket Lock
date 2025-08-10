@@ -1,0 +1,230 @@
+--// Load whitelist check
+loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Whitelist%20people"))()
+
+--// Configuration defaults
+local NUM_ROCKETS_DEFAULT = 3000
+
+--// Services
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local StarterGui = game:GetService("StarterGui")
+
+--// Create ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = game.CoreGui
+screenGui.IgnoreGuiInset = true
+
+--// Create Main Frame (Right Side)
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 180, 0, 310)
+mainFrame.Position = UDim2.new(1, -180, 0.1, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+mainFrame.BorderSizePixel = 0
+mainFrame.Parent = screenGui
+
+-- Enable built-in draggable GUI
+mainFrame.Active = true
+mainFrame.Draggable = true
+
+--// Title Label
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 40)
+title.BackgroundTransparency = 1
+title.Text = "Rocket Lock"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.TextSize = 20
+title.Font = Enum.Font.SourceSansBold
+title.Parent = mainFrame
+
+--// Neutral Button (Clear Selection)
+local neutralBtn = Instance.new("TextButton")
+neutralBtn.Size = UDim2.new(1, -10, 0, 30)
+neutralBtn.Position = UDim2.new(0, 5, 0, 45)
+neutralBtn.Text = "Neutral"
+neutralBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+neutralBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+neutralBtn.Font = Enum.Font.SourceSansBold
+neutralBtn.Parent = mainFrame
+
+--// Number of Rockets Label
+local rocketsLabel = Instance.new("TextLabel")
+rocketsLabel.Size = UDim2.new(0, 110, 0, 25)
+rocketsLabel.Position = UDim2.new(0, 5, 0, 85)
+rocketsLabel.Text = "Number of Rockets:"
+rocketsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+rocketsLabel.BackgroundTransparency = 1
+rocketsLabel.Font = Enum.Font.SourceSans
+rocketsLabel.TextSize = 16
+rocketsLabel.TextXAlignment = Enum.TextXAlignment.Left
+rocketsLabel.Parent = mainFrame
+
+--// Number of Rockets TextBox
+local rocketsBox = Instance.new("TextBox")
+rocketsBox.Size = UDim2.new(0, 60, 0, 25)
+rocketsBox.Position = UDim2.new(0, 120, 0, 85)
+rocketsBox.Text = tostring(NUM_ROCKETS_DEFAULT)
+rocketsBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+rocketsBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+rocketsBox.ClearTextOnFocus = false
+rocketsBox.Font = Enum.Font.SourceSans
+rocketsBox.TextSize = 18
+rocketsBox.Parent = mainFrame
+
+--// Player List (ScrollingFrame)
+local playerList = Instance.new("ScrollingFrame")
+playerList.Size = UDim2.new(1, 0, 1, -170)
+playerList.Position = UDim2.new(0, 0, 0, 120)
+playerList.BackgroundTransparency = 0.2
+playerList.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+playerList.BorderSizePixel = 0
+playerList.CanvasSize = UDim2.new(0, 0, 0, 0)
+playerList.Parent = mainFrame
+playerList.ScrollBarThickness = 6
+
+--// Selected Player and buttons storage
+local selectedPlayer = nil
+local playerButtons = {}
+
+--// Function to populate player list
+local function refreshPlayerList()
+    playerList:ClearAllChildren()
+    playerButtons = {}
+    local y = 0
+
+    local function createPlayerButton(player)
+        local btn = Instance.new("TextButton")
+        btn.Size = UDim2.new(1, -10, 0, 30)
+        btn.Position = UDim2.new(0, 5, 0, y)
+        btn.Text = player.Name
+        btn.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- default red
+        btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        btn.Font = Enum.Font.SourceSansBold
+        btn.TextSize = 18
+        btn.Parent = playerList
+
+        btn.MouseButton1Click:Connect(function()
+            -- Unhighlight previous selection
+            if selectedPlayer and playerButtons[selectedPlayer] then
+                playerButtons[selectedPlayer].BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+            end
+
+            selectedPlayer = player
+            btn.BackgroundColor3 = Color3.fromRGB(0, 255, 0) -- highlight green
+
+            StarterGui:SetCore("SendNotification", {
+                Title = "Target Locked",
+                Text = "Locked on " .. player.Name,
+                Duration = 3
+            })
+        end)
+
+        playerButtons[player] = btn
+        y = y + 35
+    end
+
+    -- Add LocalPlayer first
+    createPlayerButton(LocalPlayer)
+
+    -- Then add other players (excluding LocalPlayer to avoid duplicate)
+    for _, p in pairs(Players:GetPlayers()) do
+        if p ~= LocalPlayer then
+            createPlayerButton(p)
+        end
+    end
+
+    playerList.CanvasSize = UDim2.new(0, 0, 0, y)
+end
+
+-- Update player list when players join or leave
+Players.PlayerAdded:Connect(refreshPlayerList)
+Players.PlayerRemoving:Connect(function(player)
+    if selectedPlayer == player then
+        if playerButtons[player] then
+            playerButtons[player].BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+        end
+        selectedPlayer = nil
+        StarterGui:SetCore("SendNotification", {
+            Title = "Target Lost",
+            Text = player.Name .. " has left the server.",
+            Duration = 3
+        })
+    end
+    refreshPlayerList()
+end)
+
+refreshPlayerList()
+
+-- Continuous firing control
+local firing = false
+
+local function fireRocketsLoop()
+    if firing then return end -- prevent duplicate loops
+    firing = true
+    StarterGui:SetCore("SendNotification", {
+        Title = "Phantom Angel",
+        Text = "Continuous firing started!",
+        Duration = 3
+    })
+
+    local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local RocketLauncher = Character:WaitForChild("RocketLauncher")
+    local RocketEvent = RocketLauncher:WaitForChild("BattleRocketEvent")
+
+    while firing do
+        if not selectedPlayer or not selectedPlayer.Character or not selectedPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            StarterGui:SetCore("SendNotification", {
+                Title = "Error",
+                Text = "Target lost, stopping fire.",
+                Duration = 3
+            })
+            firing = false
+            break
+        end
+
+        local success, err = pcall(function()
+            RocketEvent:FireServer(selectedPlayer.Character.HumanoidRootPart.Position)
+        end)
+        if not success then
+            warn("Failed to fire rocket: " .. tostring(err))
+        end
+
+        task.wait(0.05) -- delay between rockets
+    end
+end
+
+-- Neutral button clears selection and stops firing
+neutralBtn.MouseButton1Click:Connect(function()
+    if selectedPlayer and playerButtons[selectedPlayer] then
+        playerButtons[selectedPlayer].BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    end
+    selectedPlayer = nil
+    firing = false
+    StarterGui:SetCore("SendNotification", {
+        Title = "Target Cleared",
+        Text = "No target selected. Firing stopped.",
+        Duration = 3
+    })
+end)
+
+-- Fire button starts continuous firing
+local fireBtn = Instance.new("TextButton")
+fireBtn.Size = UDim2.new(1, 0, 0, 40)
+fireBtn.Position = UDim2.new(0, 0, 1, -40)
+fireBtn.Text = "FIRE"
+fireBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+fireBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+fireBtn.TextSize = 20
+fireBtn.Font = Enum.Font.SourceSansBold
+fireBtn.Parent = mainFrame
+
+fireBtn.MouseButton1Click:Connect(function()
+    if selectedPlayer and selectedPlayer.Character and selectedPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        fireRocketsLoop()
+    else
+        StarterGui:SetCore("SendNotification", {
+            Title = "Error",
+            Text = "No player selected or player is not loaded.",
+            Duration = 3
+        })
+    end
+end)
