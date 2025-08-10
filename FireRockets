@@ -1,0 +1,71 @@
+-- === MAX STRESS TEST VERSION ===
+-- Only run this in your own private servers for testing lag/load.
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local StarterGui = game:GetService("StarterGui")
+
+-- Settings
+local TOTAL_ROCKETS = math.huge -- infinite loop
+local BATCH_SIZE = 500 -- doubled from 250
+local rocketsFired = 0
+local running = false
+
+-- Random target generator
+local function randomTarget()
+	return Vector3.new(
+		math.random(-1000, 1000),
+		math.random(0, 1000),
+		math.random(-1000, 1000)
+	)
+end
+
+local function startFiring()
+	if running then return end
+	running = true
+	StarterGui:SetCore("SendNotification", {
+		Title = "Stress Test",
+		Text = "Rocket spam started!",
+		Duration = 3
+	})
+
+	task.spawn(function()
+		while running do
+			local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+			local RocketLauncher = Character:FindFirstChild("RocketLauncher")
+			local RocketEvent = RocketLauncher and RocketLauncher:FindFirstChild("BattleRocketEvent")
+
+			if RocketEvent then
+				-- Fire multiple batches in parallel
+				for i = 1, 10 do -- 10 parallel threads
+					task.spawn(function()
+						for j = 1, BATCH_SIZE do
+							if not running then break end
+							pcall(function()
+								RocketEvent:FireServer(randomTarget())
+							end)
+							rocketsFired += 1
+							task.wait() -- minimal wait
+						end
+					end)
+				end
+			else
+				task.wait(0.1)
+			end
+			task.wait() -- prevents total freeze of your client
+		end
+	end)
+end
+
+local function stopFiring()
+	running = false
+	StarterGui:SetCore("SendNotification", {
+		Title = "Stress Test",
+		Text = "Rocket spam stopped.",
+		Duration = 3
+	})
+end
+
+-- Start immediately for testing
+startFiring()
+-- stopFiring() -- call when you want to stop
