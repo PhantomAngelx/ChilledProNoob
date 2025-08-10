@@ -2,7 +2,7 @@
 loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Whitelist%20people"))()
 
 --// Configuration defaults
-local NUM_ROCKETS_DEFAULT = 3000
+local NUM_ROCKETS_DEFAULT = 3 -- Changed to 3 instead of 3000
 
 --// Services
 local Players = game:GetService("Players")
@@ -143,6 +143,7 @@ Players.PlayerRemoving:Connect(function(player)
             playerButtons[player].BackgroundColor3 = Color3.fromRGB(255, 0, 0)
         end
         selectedPlayer = nil
+        firing = false -- Immediately stop firing when selected player leaves
         StarterGui:SetCore("SendNotification", {
             Title = "Target Lost",
             Text = player.Name .. " has left the server.",
@@ -171,6 +172,9 @@ local function fireRocketsLoop()
     local RocketEvent = RocketLauncher:WaitForChild("BattleRocketEvent")
 
     while firing do
+        -- Get rockets per loop from the textbox (live update)
+        local numRockets = tonumber(rocketsBox.Text) or NUM_ROCKETS_DEFAULT
+
         if not selectedPlayer or not selectedPlayer.Character or not selectedPlayer.Character:FindFirstChild("HumanoidRootPart") then
             StarterGui:SetCore("SendNotification", {
                 Title = "Error",
@@ -181,14 +185,24 @@ local function fireRocketsLoop()
             break
         end
 
-        local success, err = pcall(function()
-            RocketEvent:FireServer(selectedPlayer.Character.HumanoidRootPart.Position)
-        end)
-        if not success then
-            warn("Failed to fire rocket: " .. tostring(err))
+        for i = 1, numRockets do
+            if not firing then
+                break -- stop immediately if firing is false
+            end
+
+            local success, err = pcall(function()
+                RocketEvent:FireServer(selectedPlayer.Character.HumanoidRootPart.Position)
+            end)
+            if not success then
+                warn("Failed to fire rocket: " .. tostring(err))
+            end
         end
 
-        task.wait(0.05) -- delay between rockets
+        if not firing then
+            break
+        end
+
+        task.wait(0.05) -- delay between each burst
     end
 end
 
@@ -198,7 +212,7 @@ neutralBtn.MouseButton1Click:Connect(function()
         playerButtons[selectedPlayer].BackgroundColor3 = Color3.fromRGB(255, 0, 0)
     end
     selectedPlayer = nil
-    firing = false
+    firing = false -- Immediately stop firing when neutral pressed
     StarterGui:SetCore("SendNotification", {
         Title = "Target Cleared",
         Text = "No target selected. Firing stopped.",
