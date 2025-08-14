@@ -1,0 +1,168 @@
+-- Services
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+
+-- GUI Setup
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "AutoCollector"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+-- Rounded corners helper
+local function addCorner(obj, radius)
+	local uic = Instance.new("UICorner")
+	uic.CornerRadius = UDim.new(0, radius)
+	uic.Parent = obj
+end
+
+-- Main Frame
+local frame = Instance.new("Frame")
+frame.Name = "MainFrame"
+frame.Size = UDim2.new(0, 200, 0, 80)
+frame.Position = UDim2.new(0.5, -100, 0.5, -40)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+frame.Selectable = true
+frame.Parent = screenGui
+addCorner(frame, 10)
+
+-- ================= Title Bar =================
+local titleBar = Instance.new("Frame")
+titleBar.Name = "TitleBar"
+titleBar.Size = UDim2.new(1, 0, 0, 30)
+titleBar.Position = UDim2.new(0, 0, 0, 0)
+titleBar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+titleBar.BorderSizePixel = 0
+titleBar.Parent = frame
+addCorner(titleBar, 10)
+
+local title = Instance.new("TextLabel")
+title.Name = "Title"
+title.Size = UDim2.new(1, -50, 1, 0) -- leave room for buttons
+title.Position = UDim2.new(0, 5, 0, 0) -- small left padding
+title.BackgroundTransparency = 1
+title.Text = "AutoCollector"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.SourceSansBold
+title.TextScaled = true
+title.TextXAlignment = Enum.TextXAlignment.Center
+title.TextYAlignment = Enum.TextYAlignment.Center
+title.Parent = titleBar
+
+local minimizeButton = Instance.new("TextButton")
+minimizeButton.Name = "MinimizeButton"
+minimizeButton.Size = UDim2.new(0, 20, 0, 20)
+minimizeButton.Position = UDim2.new(1, -45, 0, 5)
+minimizeButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+minimizeButton.Text = "+"
+minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+minimizeButton.Font = Enum.Font.SourceSansBold
+minimizeButton.TextScaled = true
+minimizeButton.Parent = titleBar
+addCorner(minimizeButton, 4)
+
+local closeButton = Instance.new("TextButton")
+closeButton.Name = "CloseButton"
+closeButton.Size = UDim2.new(0, 20, 0, 20)
+closeButton.Position = UDim2.new(1, -22, 0, 5)
+closeButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+closeButton.Text = "X"
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.Font = Enum.Font.SourceSansBold
+closeButton.TextScaled = true
+closeButton.Parent = titleBar
+addCorner(closeButton, 4)
+
+-- Toggle Button
+local toggleButton = Instance.new("TextButton")
+toggleButton.Name = "ToggleButton"
+toggleButton.Size = UDim2.new(0.8, 0, 0, 40)
+toggleButton.Position = UDim2.new(0.1, 0, 0, 40)
+toggleButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+toggleButton.Text = "Start Collecting"
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleButton.Font = Enum.Font.SourceSansBold
+toggleButton.TextScaled = true
+toggleButton.Parent = frame
+addCorner(toggleButton, 6)
+
+-- ================= Minimize / Close Logic =================
+local contentVisible = true
+minimizeButton.MouseButton1Click:Connect(function()
+	contentVisible = not contentVisible
+	toggleButton.Visible = contentVisible
+	frame.Size = contentVisible and UDim2.new(0, 200, 0, 80) or UDim2.new(0, 200, 0, 30)
+	minimizeButton.Text = contentVisible and "-" or "+"
+end)
+
+closeButton.MouseButton1Click:Connect(function()
+	screenGui.Enabled = false
+end)
+
+-- ================= AutoCollector Logic =================
+local player = LocalPlayer
+local walkSpeed = 16
+local nudgeDistance = 1
+local nudgeInterval = 0.5
+local collecting = false
+
+local function getCollectorPart()
+	local tycoon = workspace.Tycoons:FindFirstChild(player.Name)
+	if tycoon and tycoon:FindFirstChild("Auxiliary") then
+		return tycoon.Auxiliary.Collector:FindFirstChildWhichIsA("BasePart")
+	end
+	return nil
+end
+
+local function walkToPosition(pos)
+	if player.Character and player.Character:FindFirstChild("Humanoid") then
+		local humanoid = player.Character.Humanoid
+		humanoid.WalkSpeed = walkSpeed
+		humanoid:MoveTo(pos)
+	end
+end
+
+local nudgeToggle = false
+local lastNudgeTime = 0
+local function walkOverCollector(collectorPart)
+	if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+		local targetPos = collectorPart.Position + Vector3.new(0, 2, 0)
+		if tick() - lastNudgeTime >= nudgeInterval then
+			local offset = Vector3.new(nudgeDistance, 0, 0)
+			if nudgeToggle then
+				walkToPosition(targetPos + offset)
+			else
+				walkToPosition(targetPos - offset)
+			end
+			nudgeToggle = not nudgeToggle
+			lastNudgeTime = tick()
+		else
+			walkToPosition(targetPos)
+		end
+	end
+end
+
+-- Heartbeat loop
+RunService.Heartbeat:Connect(function()
+	if collecting then
+		local collectorPart = getCollectorPart()
+		if collectorPart then
+			walkOverCollector(collectorPart)
+		end
+	end
+end)
+
+-- Toggle button logic
+toggleButton.MouseButton1Click:Connect(function()
+	collecting = not collecting
+	if collecting then
+		toggleButton.Text = "Stop Collecting"
+		toggleButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+	else
+		toggleButton.Text = "Start Collecting"
+		toggleButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+	end
+end)
