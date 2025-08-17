@@ -1,0 +1,131 @@
+local player = game.Players.LocalPlayer
+local RunService = game:GetService("RunService")
+
+-- GUI Setup (original design)
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "ToolGrabberGUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Name = "MainFrame"
+frame.Size = UDim2.new(0, 220, 0, 140)
+frame.Position = UDim2.new(0.5, -110, 0.5, -70)
+frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+frame.BorderSizePixel = 0
+frame.BackgroundTransparency = 0.1
+frame.Active = true
+frame.Draggable = true
+frame.Selectable = true
+frame.Parent = screenGui
+
+local title = Instance.new("TextLabel")
+title.Name = "Title"
+title.Size = UDim2.new(1, 0, 0.25, 0)
+title.Position = UDim2.new(0, 0, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Fast Gear Collector"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.SourceSansBold
+title.TextScaled = true
+title.Parent = frame
+
+local closeButton = Instance.new("TextButton")
+closeButton.Name = "CloseButton"
+closeButton.Size = UDim2.new(0, 25, 0, 25)
+closeButton.Position = UDim2.new(1, -30, 0, 5)
+closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+closeButton.Text = "X"
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.Font = Enum.Font.SourceSansBold
+closeButton.TextScaled = true
+closeButton.Parent = frame
+closeButton.MouseButton1Click:Connect(function()
+	screenGui.Enabled = false
+end)
+
+local startButton = Instance.new("TextButton")
+startButton.Name = "StartButton"
+startButton.Size = UDim2.new(0.8, 0, 0.25, 0)
+startButton.Position = UDim2.new(0.1, 0, 0.35, 0)
+startButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+startButton.Text = "Start"
+startButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+startButton.Font = Enum.Font.SourceSansBold
+startButton.TextScaled = true
+startButton.Parent = frame
+
+local stopButton = Instance.new("TextButton")
+stopButton.Name = "StopButton"
+stopButton.Size = UDim2.new(0.8, 0, 0.25, 0)
+stopButton.Position = UDim2.new(0.1, 0, 0.65, 0)
+stopButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+stopButton.Text = "Stop"
+stopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+stopButton.Font = Enum.Font.SourceSansBold
+stopButton.TextScaled = true
+stopButton.Parent = frame
+
+-- Gear collection logic
+local isCollecting = false
+local collectibleParts = {}
+local interval = 0.01 -- very fast collection
+local lastTime = 0
+local updatePartsInterval = 0.2
+local lastUpdate = 0
+
+-- Gather all gears from all tycoons
+local function updateCollectibleParts()
+	local newParts = {}
+	for _, tycoonFolder in pairs(workspace.Tycoons.Tycoons:GetChildren()) do
+		local purchased = tycoonFolder:FindFirstChild("PurchasedObjects")
+		if purchased then
+			for _, gear in pairs(purchased:GetChildren()) do
+				for _, part in pairs(gear:GetChildren()) do
+					if part:IsA("BasePart") and part.Parent then
+						table.insert(newParts, part)
+					end
+				end
+			end
+		end
+	end
+	collectibleParts = newParts
+end
+
+startButton.MouseButton1Click:Connect(function()
+	isCollecting = true
+	startButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+end)
+
+stopButton.MouseButton1Click:Connect(function()
+	isCollecting = false
+	startButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+end)
+
+-- Continuous collection without moving gears
+RunService.Heartbeat:Connect(function()
+	if not isCollecting then return end
+	if tick() - lastTime < interval then return end
+	lastTime = tick()
+
+	local char = player.Character
+	if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+
+	if tick() - lastUpdate >= updatePartsInterval then
+		lastUpdate = tick()
+		updateCollectibleParts()
+	end
+
+	for i, part in pairs(collectibleParts) do
+		if part and part.Parent then
+			-- Only simulate touch; do not teleport or hide the gear
+			firetouchinterest(char.HumanoidRootPart, part, 0)
+			firetouchinterest(char.HumanoidRootPart, part, 1)
+		end
+	end
+end)
+
+player.CharacterAdded:Connect(function()
+	wait(0.1)
+	lastTime = tick()
+end)
