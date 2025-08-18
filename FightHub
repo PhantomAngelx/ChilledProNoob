@@ -1,0 +1,79 @@
+--// Load whitelist check
+loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Whitelist%20people"))()
+
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "FightingHub",
+   LoadingTitle = "Rayfield Interface Suite",
+   LoadingSubtitle = "by Sirius",
+   Theme = "Default",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil,
+      FileName = "Big Hub"
+   },
+   Discord = {
+      Enabled = false,
+      Invite = "noinvitelink",
+      RememberJoins = true
+   },
+   KeySystem = true,  -- <-- Enable the key system
+   KeySettings = {
+      Title = "FightingHub Key System",
+      Subtitle = "Enter your key below",
+      Note = "You can get your key from the developer",
+      FileName = "Key",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = {"KinglyTinglyManYes1738273"} -- <-- Valid keys go here
+   }
+})
+
+local MainTab = Window:CreateTab("Main", 4483362458)
+MainTab:CreateSection("Main")
+
+MainTab:CreateButton({
+   Name = "Grab",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/ChilledProNoob/refs/heads/main/FightTool"))()
+   end
+})
+
+local MiscTab = Window:CreateTab("Misc", 4483362458)
+MiscTab:CreateSection("Misc")
+
+MiscTab:CreateButton({
+   Name = "Fly",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Universal-fly-script-28708"))()
+   end
+})
+
+MiscTab:CreateButton({
+   Name = "Speed",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Speed-changer-35377"))()
+   end
+})
+
+MiscTab:CreateButton({
+   Name = "Shiftlock",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Universal-Shiftlock-No-Disappear-after-die-23318"))()
+   end
+})
+
+MiscTab:CreateButton({
+   Name = "FlingManual",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Fling-gui-troll-17597"))()
+   end
+})
+
+MiscTab:CreateButton({
+   Name = "PlayerTeleport",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL-/refs/heads/main/PlayerTeleport"))()
+   end
+})
