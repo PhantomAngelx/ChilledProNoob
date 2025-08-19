@@ -1,0 +1,171 @@
+-- // Auto Collect Script with Single Toggle Button
+
+-- Services
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local tycoonsFolder = Workspace:WaitForChild("Tycoons"):WaitForChild("Tycoons")
+
+-- Variables
+local givers = {}
+local originalPositions = {}
+local autoCollectEnabled = false
+local connection -- RenderStepped connection
+
+-- Get the player's tycoon
+local function getPlayerTycoon()
+	for _, tycoon in ipairs(tycoonsFolder:GetChildren()) do
+		local owner = tycoon:FindFirstChild("Owner")
+		if owner and owner.Value == player then
+			return tycoon
+		end
+	end
+end
+
+-- Hide parts
+local function hidePart(part)
+	if part:IsA("BasePart") then
+		part.Transparency = 1
+		part.CanCollide = false
+	else
+		for _, descendant in ipairs(part:GetDescendants()) do
+			if descendant:IsA("BasePart") then
+				descendant.Transparency = 1
+				descendant.CanCollide = false
+			end
+		end
+	end
+end
+
+-- Setup givers
+local function setupGivers()
+	table.clear(givers)
+	local character = player.Character or player.CharacterAdded:Wait()
+	local rootPart = character:WaitForChild("HumanoidRootPart")
+	local tycoon = getPlayerTycoon()
+	if not tycoon then return end
+
+	local essentials = tycoon:WaitForChild("Essentials")
+	for _, item in ipairs(essentials:GetChildren()) do
+		if item.Name == "Giver" then
+			hidePart(item)
+			local part = item:IsA("Model") and (item.PrimaryPart or item:FindFirstChildWhichIsA("BasePart")) or item
+			if part then
+				givers[#givers + 1] = part
+				if not originalPositions[part] then
+					originalPositions[part] = part.Position
+				end
+			end
+		end
+	end
+	return rootPart
+end
+
+-- Start Auto Collect
+local function startAutoCollect()
+	if autoCollectEnabled then return end
+	autoCollectEnabled = true
+
+	local rootPart = setupGivers()
+	if not rootPart then return end
+
+	connection = RunService.RenderStepped:Connect(function()
+		if not autoCollectEnabled then return end
+		if not rootPart.Parent then return end
+
+		for _, giver in ipairs(givers) do
+			if giver and giver.Parent then
+				giver.Position = rootPart.Position + Vector3.new(0, 1, 0)
+				firetouchinterest(rootPart, giver, 0)
+				firetouchinterest(rootPart, giver, 1)
+			end
+		end
+	end)
+end
+
+-- Stop Auto Collect
+local function stopAutoCollect()
+	autoCollectEnabled = false
+	if connection then
+		connection:Disconnect()
+		connection = nil
+	end
+	-- Reset giver positions
+	for part, pos in pairs(originalPositions) do
+		if part and part.Parent then
+			part.Position = pos
+		end
+	end
+end
+
+-- Reset on respawn
+player.CharacterAdded:Connect(function()
+	task.wait(0.2)
+	if autoCollectEnabled then
+		stopAutoCollect()
+		startAutoCollect()
+	end
+end)
+
+-------------------------------------------------------
+-- GUI
+-------------------------------------------------------
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "AutoCollectGUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+-- Frame
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 220, 0, 100)
+frame.Position = UDim2.new(0.5, -110, 0.5, -50)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.Active = true
+frame.Draggable = true
+frame.Parent = screenGui
+
+local function addCorner(obj, radius)
+	local uic = Instance.new("UICorner")
+	uic.CornerRadius = UDim.new(0, radius)
+	uic.Parent = obj
+end
+addCorner(frame, 10)
+
+-- Title
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 30)
+title.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+title.Text = "Auto Collect"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.SourceSansBold
+title.TextScaled = true
+title.Parent = frame
+addCorner(title, 10)
+
+-- Toggle Button
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Size = UDim2.new(0.8, 0, 0, 40)
+toggleBtn.Position = UDim2.new(0.1, 0, 0, 45)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+toggleBtn.Text = "Start Auto Collect"
+toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleBtn.Font = Enum.Font.SourceSansBold
+toggleBtn.TextScaled = true
+toggleBtn.Parent = frame
+addCorner(toggleBtn, 6)
+
+-- Button Logic
+toggleBtn.MouseButton1Click:Connect(function()
+	if autoCollectEnabled then
+		stopAutoCollect()
+		toggleBtn.Text = "Start Auto Collect"
+		toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+	else
+		startAutoCollect()
+		toggleBtn.Text = "Stop Auto Collect"
+		toggleBtn.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+	end
+end)
