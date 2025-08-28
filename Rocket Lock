@@ -155,11 +155,8 @@ end)
 
 refreshPlayerList()
 
--- Continuous firing control
-local firing = false
-
 local function fireRocketsLoop()
-    if firing then return end -- prevent duplicate loops
+    if firing then return end
     firing = true
     StarterGui:SetCore("SendNotification", {
         Title = "Phantom Angel",
@@ -172,10 +169,11 @@ local function fireRocketsLoop()
     local RocketEvent = RocketLauncher:WaitForChild("BattleRocketEvent")
 
     while firing do
-        -- Get rockets per loop from the textbox (live update)
         local numRockets = tonumber(rocketsBox.Text) or NUM_ROCKETS_DEFAULT
 
-        if not selectedPlayer or not selectedPlayer.Character or not selectedPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        if not selectedPlayer
+        or not selectedPlayer.Character
+        or not selectedPlayer.Character:FindFirstChild("HumanoidRootPart") then
             StarterGui:SetCore("SendNotification", {
                 Title = "Error",
                 Text = "Target lost, stopping fire.",
@@ -186,9 +184,7 @@ local function fireRocketsLoop()
         end
 
         for i = 1, numRockets do
-            if not firing then
-                break -- stop immediately if firing is false
-            end
+            if not firing then break end -- immediate stop mid-burst
 
             local success, err = pcall(function()
                 RocketEvent:FireServer(selectedPlayer.Character.HumanoidRootPart.Position)
@@ -196,13 +192,10 @@ local function fireRocketsLoop()
             if not success then
                 warn("Failed to fire rocket: " .. tostring(err))
             end
-        end
 
-        if not firing then
-            break
+            task.wait(0.02)
         end
-
-        task.wait(0.05) -- delay between each burst
+        task.wait(0.1)
     end
 end
 
