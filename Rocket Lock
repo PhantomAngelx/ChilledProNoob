@@ -1,3 +1,6 @@
+--// Load whitelist check
+loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Whitelist%20people"))()
+
 --// Configuration defaults
 local NUM_ROCKETS_DEFAULT = 3
 
