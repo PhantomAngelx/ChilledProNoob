@@ -1,8 +1,5 @@
---// Load whitelist check
-loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomAngelx/PHANTOM-ANGEL/refs/heads/main/Whitelist%20people"))()
-
 --// Configuration defaults
-local NUM_ROCKETS_DEFAULT = 3 -- Changed to 3 instead of 3000
+local NUM_ROCKETS_DEFAULT = 3
 
 --// Services
 local Players = game:GetService("Players")
@@ -11,81 +8,164 @@ local StarterGui = game:GetService("StarterGui")
 
 --// Create ScreenGui
 local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "Rocket" -- Name it Rocket
 screenGui.Parent = game.CoreGui
 screenGui.IgnoreGuiInset = true
 
---// Create Main Frame (Right Side)
+--// Main Frame
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 180, 0, 310)
-mainFrame.Position = UDim2.new(1, -180, 0.1, 0)
+mainFrame.Size = UDim2.new(0, 150, 0, 250)
+mainFrame.Position = UDim2.new(1, -160, 0.1, 0)
 mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 mainFrame.BorderSizePixel = 0
 mainFrame.Parent = screenGui
-
--- Enable built-in draggable GUI
 mainFrame.Active = true
 mainFrame.Draggable = true
 
---// Title Label
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 40)
-title.BackgroundTransparency = 1
-title.Text = "Rocket Lock"
-title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.TextSize = 20
-title.Font = Enum.Font.SourceSansBold
-title.Parent = mainFrame
+-- Rounded corners
+local mainCorner = Instance.new("UICorner")
+mainCorner.CornerRadius = UDim.new(0, 8)
+mainCorner.Parent = mainFrame
 
---// Neutral Button (Clear Selection)
+--// Title Bar
+local titleBar = Instance.new("Frame")
+titleBar.Size = UDim2.new(1, 0, 0, 30)
+titleBar.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+titleBar.BorderSizePixel = 0
+titleBar.Parent = mainFrame
+
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0, 8)
+titleCorner.Parent = titleBar
+
+-- Title (centered)
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -65, 1, 0) -- leave room for buttons
+title.Position = UDim2.new(0, 0, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Rocket"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.TextSize = 18
+title.Font = Enum.Font.SourceSansBold
+title.TextXAlignment = Enum.TextXAlignment.Center
+title.Parent = titleBar
+
+--// Close Button
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 25, 0, 25)
+closeBtn.Position = UDim2.new(1, -30, 0, 3)
+closeBtn.Text = "X"
+closeBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeBtn.Font = Enum.Font.SourceSansBold
+closeBtn.TextSize = 14
+closeBtn.Parent = titleBar
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 6)
+closeCorner.Parent = closeBtn
+
+closeBtn.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+end)
+
+--// Minimize Button
+local minimizeBtn = Instance.new("TextButton")
+minimizeBtn.Size = UDim2.new(0, 25, 0, 25)
+minimizeBtn.Position = UDim2.new(1, -60, 0, 3) -- left of close button
+minimizeBtn.Text = "-"
+minimizeBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+minimizeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+minimizeBtn.Font = Enum.Font.SourceSansBold
+minimizeBtn.TextSize = 14
+minimizeBtn.Parent = titleBar
+
+local minimizeCorner = Instance.new("UICorner")
+minimizeCorner.CornerRadius = UDim.new(0, 6)
+minimizeCorner.Parent = minimizeBtn
+
+-- Minimize logic
+local minimized = false
+local originalSize = mainFrame.Size
+
+minimizeBtn.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    if minimized then
+        -- Collapse the frame (keep only title bar)
+        mainFrame.Size = UDim2.new(originalSize.X.Scale, originalSize.X.Offset, 0, titleBar.Size.Y.Offset)
+        for _, child in pairs(mainFrame:GetChildren()) do
+            if child ~= titleBar and not child:IsA("UICorner") then
+                child.Visible = false
+            end
+        end
+    else
+        -- Restore size
+        mainFrame.Size = originalSize
+        for _, child in pairs(mainFrame:GetChildren()) do
+            if child ~= titleBar and not child:IsA("UICorner") then
+                child.Visible = true
+            end
+        end
+    end
+end)
+
+--// Neutral Button
 local neutralBtn = Instance.new("TextButton")
-neutralBtn.Size = UDim2.new(1, -10, 0, 30)
-neutralBtn.Position = UDim2.new(0, 5, 0, 45)
+neutralBtn.Size = UDim2.new(1, -10, 0, 25)
+neutralBtn.Position = UDim2.new(0, 5, 0, 35)
 neutralBtn.Text = "Neutral"
 neutralBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 neutralBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 neutralBtn.Font = Enum.Font.SourceSansBold
+neutralBtn.TextSize = 14
 neutralBtn.Parent = mainFrame
 
---// Number of Rockets Label
+local neutralCorner = Instance.new("UICorner")
+neutralCorner.CornerRadius = UDim.new(0, 6)
+neutralCorner.Parent = neutralBtn
+
+--// Rocket Count
 local rocketsLabel = Instance.new("TextLabel")
-rocketsLabel.Size = UDim2.new(0, 110, 0, 25)
-rocketsLabel.Position = UDim2.new(0, 5, 0, 85)
-rocketsLabel.Text = "Number of Rockets:"
+rocketsLabel.Size = UDim2.new(0, 100, 0, 20)
+rocketsLabel.Position = UDim2.new(0, 5, 0, 65)
+rocketsLabel.Text = "Rockets:"
 rocketsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 rocketsLabel.BackgroundTransparency = 1
 rocketsLabel.Font = Enum.Font.SourceSans
-rocketsLabel.TextSize = 16
+rocketsLabel.TextSize = 14
 rocketsLabel.TextXAlignment = Enum.TextXAlignment.Left
 rocketsLabel.Parent = mainFrame
 
---// Number of Rockets TextBox
 local rocketsBox = Instance.new("TextBox")
-rocketsBox.Size = UDim2.new(0, 60, 0, 25)
-rocketsBox.Position = UDim2.new(0, 120, 0, 85)
+rocketsBox.Size = UDim2.new(0, 40, 0, 20)
+rocketsBox.Position = UDim2.new(0, 105, 0, 65)
 rocketsBox.Text = tostring(NUM_ROCKETS_DEFAULT)
 rocketsBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 rocketsBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 rocketsBox.ClearTextOnFocus = false
 rocketsBox.Font = Enum.Font.SourceSans
-rocketsBox.TextSize = 18
+rocketsBox.TextSize = 14
 rocketsBox.Parent = mainFrame
 
---// Player List (ScrollingFrame)
+local boxCorner = Instance.new("UICorner")
+boxCorner.CornerRadius = UDim.new(0, 4)
+boxCorner.Parent = rocketsBox
+
+--// Player List
 local playerList = Instance.new("ScrollingFrame")
-playerList.Size = UDim2.new(1, 0, 1, -170)
-playerList.Position = UDim2.new(0, 0, 0, 120)
+playerList.Size = UDim2.new(1, -10, 0, 120)
+playerList.Position = UDim2.new(0, 5, 0, 90)
 playerList.BackgroundTransparency = 0.2
 playerList.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 playerList.BorderSizePixel = 0
 playerList.CanvasSize = UDim2.new(0, 0, 0, 0)
+playerList.ScrollBarThickness = 5
 playerList.Parent = mainFrame
-playerList.ScrollBarThickness = 6
 
---// Selected Player and buttons storage
 local selectedPlayer = nil
 local playerButtons = {}
 
---// Function to populate player list
+-- Function to refresh players
 local function refreshPlayerList()
     playerList:ClearAllChildren()
     playerButtons = {}
@@ -93,76 +173,53 @@ local function refreshPlayerList()
 
     local function createPlayerButton(player)
         local btn = Instance.new("TextButton")
-        btn.Size = UDim2.new(1, -10, 0, 30)
-        btn.Position = UDim2.new(0, 5, 0, y)
+        btn.Size = UDim2.new(1, 0, 0, 25)
+        btn.Position = UDim2.new(0, 0, 0, y)
         btn.Text = player.Name
-        btn.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- default red
+        btn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
         btn.TextColor3 = Color3.fromRGB(255, 255, 255)
         btn.Font = Enum.Font.SourceSansBold
-        btn.TextSize = 18
+        btn.TextSize = 14
         btn.Parent = playerList
 
+        local btnCorner = Instance.new("UICorner")
+        btnCorner.CornerRadius = UDim.new(0, 4)
+        btnCorner.Parent = btn
+
         btn.MouseButton1Click:Connect(function()
-            -- Unhighlight previous selection
             if selectedPlayer and playerButtons[selectedPlayer] then
                 playerButtons[selectedPlayer].BackgroundColor3 = Color3.fromRGB(255, 0, 0)
             end
-
             selectedPlayer = player
-            btn.BackgroundColor3 = Color3.fromRGB(0, 255, 0) -- highlight green
-
-            StarterGui:SetCore("SendNotification", {
-                Title = "Target Locked",
-                Text = "Locked on " .. player.Name,
-                Duration = 3
-            })
+            btn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
         end)
 
         playerButtons[player] = btn
-        y = y + 35
+        y = y + 28
     end
 
-    -- Add LocalPlayer first
-    createPlayerButton(LocalPlayer)
-
-    -- Then add other players (excluding LocalPlayer to avoid duplicate)
     for _, p in pairs(Players:GetPlayers()) do
-        if p ~= LocalPlayer then
-            createPlayerButton(p)
-        end
+        createPlayerButton(p)
     end
 
     playerList.CanvasSize = UDim2.new(0, 0, 0, y)
 end
 
--- Update player list when players join or leave
 Players.PlayerAdded:Connect(refreshPlayerList)
 Players.PlayerRemoving:Connect(function(player)
     if selectedPlayer == player then
-        if playerButtons[player] then
-            playerButtons[player].BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-        end
         selectedPlayer = nil
-        firing = false -- Immediately stop firing when selected player leaves
-        StarterGui:SetCore("SendNotification", {
-            Title = "Target Lost",
-            Text = player.Name .. " has left the server.",
-            Duration = 3
-        })
     end
     refreshPlayerList()
 end)
 
 refreshPlayerList()
 
+-- Fire logic
+local firing = false
 local function fireRocketsLoop()
     if firing then return end
     firing = true
-    StarterGui:SetCore("SendNotification", {
-        Title = "Phantom Angel",
-        Text = "Continuous firing started!",
-        Duration = 3
-    })
 
     local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
     local RocketLauncher = Character:WaitForChild("RocketLauncher")
@@ -170,68 +227,48 @@ local function fireRocketsLoop()
 
     while firing do
         local numRockets = tonumber(rocketsBox.Text) or NUM_ROCKETS_DEFAULT
-
-        if not selectedPlayer
-        or not selectedPlayer.Character
-        or not selectedPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            StarterGui:SetCore("SendNotification", {
-                Title = "Error",
-                Text = "Target lost, stopping fire.",
-                Duration = 3
-            })
+        if not selectedPlayer or not selectedPlayer.Character or not selectedPlayer.Character:FindFirstChild("HumanoidRootPart") then
             firing = false
             break
         end
 
         for i = 1, numRockets do
-            if not firing then break end -- immediate stop mid-burst
-
-            local success, err = pcall(function()
+            if not firing then break end
+            pcall(function()
                 RocketEvent:FireServer(selectedPlayer.Character.HumanoidRootPart.Position)
             end)
-            if not success then
-                warn("Failed to fire rocket: " .. tostring(err))
-            end
-
             task.wait(0.02)
         end
         task.wait(0.1)
     end
 end
 
--- Neutral button clears selection and stops firing
+-- Neutral Button
 neutralBtn.MouseButton1Click:Connect(function()
     if selectedPlayer and playerButtons[selectedPlayer] then
         playerButtons[selectedPlayer].BackgroundColor3 = Color3.fromRGB(255, 0, 0)
     end
     selectedPlayer = nil
-    firing = false -- Immediately stop firing when neutral pressed
-    StarterGui:SetCore("SendNotification", {
-        Title = "Target Cleared",
-        Text = "No target selected. Firing stopped.",
-        Duration = 3
-    })
+    firing = false
 end)
 
--- Fire button starts continuous firing
+-- Fire Button
 local fireBtn = Instance.new("TextButton")
-fireBtn.Size = UDim2.new(1, 0, 0, 40)
-fireBtn.Position = UDim2.new(0, 0, 1, -40)
+fireBtn.Size = UDim2.new(1, -10, 0, 30)
+fireBtn.Position = UDim2.new(0, 5, 1, -35)
 fireBtn.Text = "FIRE"
-fireBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+fireBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
 fireBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-fireBtn.TextSize = 20
+fireBtn.TextSize = 16
 fireBtn.Font = Enum.Font.SourceSansBold
 fireBtn.Parent = mainFrame
+
+local fireCorner = Instance.new("UICorner")
+fireCorner.CornerRadius = UDim.new(0, 6)
+fireCorner.Parent = fireBtn
 
 fireBtn.MouseButton1Click:Connect(function()
     if selectedPlayer and selectedPlayer.Character and selectedPlayer.Character:FindFirstChild("HumanoidRootPart") then
         fireRocketsLoop()
-    else
-        StarterGui:SetCore("SendNotification", {
-            Title = "Error",
-            Text = "No player selected or player is not loaded.",
-            Duration = 3
-        })
     end
 end)
