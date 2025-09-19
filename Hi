@@ -1,0 +1,377 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local CoreGui = game:GetService("CoreGui")
+local LocalPlayer = Players.LocalPlayer or Players.PlayerAdded:Wait()
+
+local Camera = workspace.CurrentCamera or workspace:WaitForChild("CurrentCamera", 5)
+
+-- State
+local isRunning = false
+local flingManager = { lFlingOldPos = nil }
+
+-- Utilities
+local function safeWait(dt)
+    if dt then task.wait(dt) else task.wait() end
+end
+
+local function InstanceNew(className)
+    return Instance.new(className)
+end
+
+local function getHumAndRoot(character)
+    if not character then return nil, nil end
+    local hum = character:FindFirstChildOfClass("Humanoid")
+    local root = character:FindFirstChild("HumanoidRootPart") or character:FindFirstChild("LowerTorso") or character:FindFirstChild("Torso")
+    return hum, root
+end
+
+local function getHead(character)
+    if not character then return nil end
+    return character:FindFirstChild("Head")
+end
+
+local function Foreach(tbl, fn)
+    for i,v in ipairs(tbl) do
+        pcall(fn, i, v)
+    end
+end
+
+-- Player lookup
+local function GetPlayerByName(name)
+    if not name then return nil, false end
+    name = tostring(name):lower()
+    if name == "all" or name == "others" then
+        return nil, true
+    end
+    if name == "random" then
+        local list = Players:GetPlayers()
+        for i=#list,1,-1 do
+            if list[i] == LocalPlayer then table.remove(list,i) end
+        end
+        if #list == 0 then return nil, false end
+        return list[math.random(#list)], false
+    end
+    for _,plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer then
+            local nm = plr.Name:lower()
+            local dn = (plr.DisplayName or ""):lower()
+            if nm:match('^'..name) or dn:match('^'..name) then
+                return plr, false
+            end
+        end
+    end
+    return nil, false
+end
+
+-- Fling routine
+local function SkidFling(TargetPlayer)
+    local ok, err = pcall(function()
+        if not TargetPlayer or not TargetPlayer.Parent then return end
+        local Character = LocalPlayer.Character
+        if not Character then return end
+        local Humanoid, HRP = getHumAndRoot(Character)
+        if not (Humanoid and HRP) then return end
+
+        local TCharacter = TargetPlayer.Character
+        if not TCharacter then return end
+        local THumanoid, TRootPart = getHumAndRoot(TCharacter)
+        local THead = getHead(TCharacter)
+        local Accessory = TCharacter:FindFirstChildOfClass("Accessory")
+        local Handle = Accessory and Accessory:FindFirstChild("Handle")
+
+        -- helper part attached to HRP
+        local LOOPPROTECT = InstanceNew("Part")
+        LOOPPROTECT.Size = Vector3.new(1,1,1)
+        LOOPPROTECT.Transparency = 1
+        LOOPPROTECT.CanCollide = false
+        LOOPPROTECT.Anchored = false
+        LOOPPROTECT.Parent = Camera or workspace
+
+        local weld = InstanceNew("WeldConstraint")
+        weld.Part0 = HRP
+        weld.Part1 = LOOPPROTECT
+        weld.Parent = LOOPPROTECT
+
+        local bodyGyro = InstanceNew("BodyGyro")
+        bodyGyro.MaxTorque = Vector3.new(4e5,4e5,4e5)
+        bodyGyro.D = 1000
+        bodyGyro.P = 2000
+        bodyGyro.Parent = LOOPPROTECT
+
+        if not flingManager.lFlingOldPos or HRP.Velocity.Magnitude < 50 then
+            flingManager.lFlingOldPos = HRP.CFrame
+        end
+
+        -- Camera subject for visual
+        if THead then
+            Camera.CameraSubject = THead
+        elseif not THead and Handle then
+            Camera.CameraSubject = Handle
+        elseif THumanoid and TRootPart then
+            Camera.CameraSubject = THumanoid
+        end
+
+        if not TCharacter:FindFirstChildWhichIsA("BasePart") then
+            if LOOPPROTECT and LOOPPROTECT.Parent then LOOPPROTECT:Destroy() end
+            return
+        end
+
+        local function FPos(BasePart, Pos, Ang)
+            if not (HRP and BasePart) then return end
+            local c = CFrame.new(BasePart.Position) * (Pos or CFrame.new()) * (Ang or CFrame.new())
+            pcall(function()
+                HRP.CFrame = c
+                if Character.PrimaryPart then
+                    Character:SetPrimaryPartCFrame(c)
+                end
+                HRP.Velocity = Vector3.new(9e7, 9e7 * 10, 9e7)
+                HRP.RotVelocity = Vector3.new(9e8, 9e8, 9e8)
+            end)
+        end
+
+        local function SFBasePart(BasePart)
+            local TimeToWait = 2
+            local Time = tick()
+            local Angle = 0
+            repeat
+                if HRP and THumanoid and BasePart and BasePart.Parent then
+                    if BasePart.Velocity.Magnitude < 50 then
+                        Angle = Angle + 100
+                        FPos(BasePart, CFrame.new(0, 1.5, 0) + THumanoid.MoveDirection * (BasePart.Velocity.Magnitude / 1.25), CFrame.Angles(math.rad(Angle), 0, 0))
+                        safeWait()
+                        FPos(BasePart, CFrame.new(0, -1.5, 0) + THumanoid.MoveDirection * (BasePart.Velocity.Magnitude / 1.25), CFrame.Angles(math.rad(Angle), 0, 0))
+                        safeWait()
+                    else
+                        FPos(BasePart, CFrame.new(0, 1.5, THumanoid.WalkSpeed), CFrame.Angles(math.rad(90), 0, 0))
+                        safeWait()
+                    end
+                else
+                    break
+                end
+            until (BasePart and BasePart.Velocity and BasePart.Velocity.Magnitude > 500) or BasePart.Parent ~= TargetPlayer.Character or TargetPlayer.Parent ~= Players or tick() > Time + TimeToWait
+            if LOOPPROTECT and LOOPPROTECT.Parent then LOOPPROTECT:Destroy() end
+        end
+
+        local OrgDestroyHeight = workspace.FallenPartsDestroyHeight
+        workspace.FallenPartsDestroyHeight = -math.huge
+
+        local BV = InstanceNew("BodyVelocity")
+        BV.Parent = HRP
+        BV.Velocity = Vector3.new(9e8, 9e8, 9e8)
+        BV.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+
+        if TRootPart and THead then
+            if (TRootPart.Position - THead.Position).Magnitude > 5 then
+                SFBasePart(THead)
+            else
+                SFBasePart(TRootPart)
+            end
+        elseif TRootPart and not THead then
+            SFBasePart(TRootPart)
+        elseif not TRootPart and THead then
+            SFBasePart(THead)
+        elseif not TRootPart and not THead and Handle then
+            SFBasePart(Handle)
+        else
+            if BV and BV.Parent then BV:Destroy() end
+            workspace.FallenPartsDestroyHeight = OrgDestroyHeight
+            if LOOPPROTECT and LOOPPROTECT.Parent then LOOPPROTECT:Destroy() end
+            return
+        end
+
+        if BV and BV.Parent then BV:Destroy() end
+        Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
+        Camera.CameraSubject = Humanoid
+
+        repeat
+            if flingManager.lFlingOldPos then
+                HRP.CFrame = flingManager.lFlingOldPos * CFrame.new(0, 0.5, 0)
+                if Character.PrimaryPart then
+                    Character:SetPrimaryPartCFrame(flingManager.lFlingOldPos * CFrame.new(0, 0.5, 0))
+                end
+                Humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+                Foreach(Character:GetChildren(), function(_, x)
+                    if x:IsA("BasePart") then
+                        x.Velocity = Vector3.new()
+                        x.RotVelocity = Vector3.new()
+                    end
+                end)
+                safeWait()
+            end
+        until not flingManager.lFlingOldPos or (HRP.Position - flingManager.lFlingOldPos.p).Magnitude < 25
+
+        workspace.FallenPartsDestroyHeight = OrgDestroyHeight
+        if LOOPPROTECT and LOOPPROTECT.Parent then LOOPPROTECT:Destroy() end
+    end)
+
+    if not ok then
+        warn("SkidFling error:", err)
+    end
+end
+
+-- GUI setup
+local playerGui = (LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")) or nil
+if not playerGui then
+    playerGui = LocalPlayer and LocalPlayer:WaitForChild("PlayerGui", 2)
+end
+
+local screenGui = InstanceNew("ScreenGui")
+screenGui.Name = "FlingGUI"
+screenGui.ResetOnSpawn = false
+screenGui.IgnoreGuiInset = true
+
+if playerGui and playerGui.Parent then
+    screenGui.Parent = playerGui
+else
+    screenGui.Parent = CoreGui
+end
+
+local frame = InstanceNew("Frame")
+frame.Size = UDim2.new(0, 220, 0, 100)
+frame.Position = UDim2.new(0,20,0,20)
+frame.BackgroundTransparency = 0.25
+frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+frame.BorderSizePixel = 0
+frame.Parent = screenGui
+
+-- Draggable GUI
+local UserInputService = game:GetService("UserInputService")
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+    local delta = input.Position - dragStart
+    frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+                               startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+frame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        update(input)
+    end
+end)
+
+-- Internal UI
+local title = InstanceNew("TextLabel")
+title.Size = UDim2.new(1, -10, 0, 20)
+title.Position = UDim2.new(0,5,0,5)
+title.BackgroundTransparency = 1
+title.Text = "Fling GUI"
+title.TextColor3 = Color3.fromRGB(255,255,255)
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 16
+title.Parent = frame
+
+local userBox = InstanceNew("TextBox")
+userBox.Size = UDim2.new(1, -10, 0, 26)
+userBox.Position = UDim2.new(0,5,0,30)
+userBox.PlaceholderText = "Enter username / all / others / random"
+userBox.ClearTextOnFocus = false
+userBox.Font = Enum.Font.SourceSans
+userBox.TextSize = 14
+userBox.Text = ""
+userBox.Parent = frame
+
+local toggleBtn = InstanceNew("TextButton")
+toggleBtn.Size = UDim2.new(1, -10, 0, 30)
+toggleBtn.Position = UDim2.new(0,5,0,60)
+toggleBtn.Text = "Start Fling"
+toggleBtn.Font = Enum.Font.SourceSansBold
+toggleBtn.TextSize = 16
+toggleBtn.Parent = frame
+
+local statusLabel = InstanceNew("TextLabel")
+statusLabel.Size = UDim2.new(1, -10, 0, 12)
+statusLabel.Position = UDim2.new(0,5,0,92)
+statusLabel.BackgroundTransparency = 1
+statusLabel.Text = "Stopped"
+statusLabel.TextSize = 10
+statusLabel.TextColor3 = Color3.fromRGB(200,200,200)
+statusLabel.Font = Enum.Font.SourceSans
+statusLabel.Parent = frame
+
+-- Loop control
+local function startLoop()
+    if isRunning then return end
+    isRunning = true
+    statusLabel.Text = "Running"
+    spawn(function()
+        while isRunning do
+            local entry = tostring(userBox.Text or "")
+            if entry == "" then
+                safeWait(0.2)
+            else
+                local target, all = GetPlayerByName(entry)
+                if all then
+                    for _,p in ipairs(Players:GetPlayers()) do
+                        if p ~= LocalPlayer then
+                            SkidFling(p)
+                        end
+                    end
+                else
+                    if target and target ~= LocalPlayer then
+                        if target.UserId ~= 1414978355 then
+                            SkidFling(target)
+                        end
+                    else
+                        local found = Players:FindFirstChild(entry)
+                        if found and found ~= LocalPlayer then
+                            SkidFling(found)
+                        end
+                    end
+                end
+                safeWait(0.25)
+            end
+        end
+        statusLabel.Text = "Stopped"
+    end)
+end
+
+local function stopLoop()
+    isRunning = false
+    statusLabel.Text = "Stopped"
+end
+
+toggleBtn.MouseButton1Click:Connect(function()
+    if not isRunning then
+        startLoop()
+        toggleBtn.Text = "Stop Fling"
+    else
+        stopLoop()
+        toggleBtn.Text = "Start Fling"
+    end
+end)
+
+pcall(function()
+    print("Fling GUI loaded for:", LocalPlayer and LocalPlayer.Name or "(no local player)")
+end)
+
+if LocalPlayer then
+    LocalPlayer.AncestryChanged:Connect(function()
+        if not LocalPlayer:IsDescendantOf(game) then
+            stopLoop()
+        end
+    end)
+end
