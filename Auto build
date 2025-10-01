@@ -1,0 +1,82 @@
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local hrp = character:WaitForChild("HumanoidRootPart")
+local baseNames = {"Purple", "Orange", "Pink", "Black", "Red", "Green", "Blue", "Yellow"}
+local waitTime = 0.2 -- time between checks
+
+local leaderstats = player:WaitForChild("leaderstats")
+local cash = leaderstats:WaitForChild("Cash")
+
+-- Track cash
+cash.Changed:Connect(function(newValue)
+    print("Current Cash: "..newValue)
+end)
+print("Current Cash: "..cash.Value)
+
+-- Function to fire TouchInterest on a part
+local function fireTouch(part)
+    for _, touch in pairs(part:GetChildren()) do
+        if touch:IsA("TouchTransmitter") then
+            -- Simulate touch from your HumanoidRootPart
+            firetouchinterest(hrp, part, 0)
+            wait(0.05)
+            firetouchinterest(hrp, part, 1)
+        end
+    end
+end
+
+-- Attempt to buy a button
+local function buyButton(button, purchases)
+    local price = button:FindFirstChild("Price")
+    local obj = button:FindFirstChild("Object")
+    local dep = button:FindFirstChild("Dependency")
+    local gp = button:FindFirstChild("Gamepass")
+    local head = button:FindFirstChild("Head")
+
+    if not price or not obj or not head then return end
+    if dep and not purchases:FindFirstChild(dep.Value) then return end
+    if gp and not player:HasPass(gp.Value) then return end
+    if cash.Value >= price.Value then
+        fireTouch(head)
+        print("Attempted purchase: "..obj.Value)
+    end
+end
+
+-- Auto-collect cash
+local function collectCash(base)
+    local essentials = base:FindFirstChild("Essentials")
+    if essentials then
+        for _, part in pairs(essentials:GetDescendants()) do
+            if part:IsA("Part") and part:FindFirstChild("TouchInterest") then
+                fireTouch(part)
+                wait(0.05)
+            end
+        end
+    end
+end
+
+-- Main loop
+while true do
+    for _, baseName in ipairs(baseNames) do
+        local base = workspace:FindFirstChild(baseName.." Base")
+        if base then
+            collectCash(base)
+            local buttons = base:FindFirstChild("Buttons")
+            local purchases = base:FindFirstChild("PurchasedObjects")
+            if buttons and purchases then
+                local sorted = {}
+                for _, btn in pairs(buttons:GetChildren()) do
+                    local price = btn:FindFirstChild("Price")
+                    if price then
+                        table.insert(sorted, {btn=btn, price=price.Value})
+                    end
+                end
+                table.sort(sorted, function(a,b) return a.price < b.price end)
+                for _, data in ipairs(sorted) do
+                    buyButton(data.btn, purchases)
+                end
+            end
+        end
+    end
+    wait(waitTime)
+end
