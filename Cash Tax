@@ -1,0 +1,147 @@
+local player = game.Players.LocalPlayer
+local UserInputService = game:GetService("UserInputService")
+
+-- GUI Setup
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "CashTaxGUI"  -- renamed ScreenGui
+screenGui.ResetOnSpawn = false
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Name = "MainFrame"
+frame.Size = UDim2.new(0, 180, 0, 120)
+frame.Position = UDim2.new(0.5, -90, 0.5, -60)
+frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+frame.BorderSizePixel = 0
+frame.BackgroundTransparency = 0.1
+frame.Parent = screenGui
+
+-- Draggable frame
+local dragging, dragInput, dragStart, startPos
+frame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+frame.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+		dragInput = input
+	end
+end)
+UserInputService.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - dragStart
+		frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+-- Labels
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0.25, 0)
+title.BackgroundTransparency = 1
+title.Text = "Cash Tax"  -- renamed GUI title
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.SourceSansBold
+title.TextScaled = true
+title.Parent = frame
+
+local statusLabel = Instance.new("TextLabel")
+statusLabel.Size = UDim2.new(1, 0, 0.2, 0)
+statusLabel.Position = UDim2.new(0, 0, 0.25, 0)
+statusLabel.BackgroundTransparency = 1
+statusLabel.Text = "Detected Tycoon: none"
+statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+statusLabel.Font = Enum.Font.SourceSans
+statusLabel.TextScaled = true
+statusLabel.Parent = frame
+
+-- Close button
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 20, 0, 20)
+closeButton.Position = UDim2.new(1, -25, 0, 5)
+closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+closeButton.Text = "X"
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.Font = Enum.Font.SourceSansBold
+closeButton.TextScaled = true
+closeButton.Parent = frame
+closeButton.MouseButton1Click:Connect(function()
+	screenGui.Enabled = false
+end)
+
+-- Toggle Button
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(0.8, 0, 0.2, 0)
+toggleButton.Position = UDim2.new(0.1, 0, 0.6, 0)
+toggleButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+toggleButton.Text = "Start"
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleButton.Font = Enum.Font.SourceSansBold
+toggleButton.TextScaled = true
+toggleButton.Parent = frame
+
+-- Base colors
+local baseColors = {"Purple", "Orange", "Pink", "Black", "Red", "Green", "Blue", "Yellow"}
+
+-- Find player base
+local function getMyBase()
+	local tycoonsFolder = workspace:WaitForChild("Tycoons"):WaitForChild("Tycoons")
+	for _, color in ipairs(baseColors) do
+		local base = tycoonsFolder:FindFirstChild(color .. " Base")
+		if base and base:FindFirstChild("Owner") then
+			local owner = base.Owner
+			if tostring(owner.Value) == player.Name or owner.Value == player then
+				statusLabel.Text = "Detected Tycoon: " .. color
+				return base
+			end
+		end
+	end
+	statusLabel.Text = "Detected Tycoon: none"
+	return nil
+end
+
+-- Auto collecting logic
+local isCollecting = false
+local interval = 0.5
+
+local function collectCash()
+	while isCollecting do
+		local char = player.Character
+		local hrp = char and char:FindFirstChild("HumanoidRootPart")
+		local myBase = getMyBase()
+		local giver = myBase and myBase:FindFirstChild("Essentials") and myBase.Essentials:FindFirstChild("Giver")
+
+		if hrp and giver and giver:IsA("BasePart") then
+			firetouchinterest(hrp, giver, 0)
+			task.wait(0.05)
+			firetouchinterest(hrp, giver, 1)
+		end
+
+		task.wait(interval)
+	end
+end
+
+-- Toggle button logic
+toggleButton.MouseButton1Click:Connect(function()
+	isCollecting = not isCollecting
+	if isCollecting then
+		toggleButton.Text = "Stop"
+		toggleButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+		task.spawn(collectCash)
+	else
+		toggleButton.Text = "Start"
+		toggleButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+	end
+end)
