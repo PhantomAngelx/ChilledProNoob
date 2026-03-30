@@ -1,0 +1,142 @@
+local Players = game:GetService("Players")
+local TextChatService = game:GetService("TextChatService")
+local Workspace = game:GetService("Workspace")
+local CoreGui = game:GetService("CoreGui")
+
+local LocalPlayer = Players.LocalPlayer
+
+local bases = {
+    {name = "Purple", pos = Vector3.new(114,62,127)},
+    {name = "Orange", pos = Vector3.new(7,62,177)},
+    {name = "Pink", pos = Vector3.new(-107,62,141)},
+    {name = "Black", pos = Vector3.new(-153,62,36)},
+    {name = "Red", pos = Vector3.new(-119,62,-78)},
+    {name = "Green", pos = Vector3.new(-10,62,-127)},
+    {name = "Blue", pos = Vector3.new(99,62,-92)},
+    {name = "Yellow", pos = Vector3.new(147,62,16)},
+}
+
+local function getChatChannel()
+	local start = tick()
+	repeat
+		local channel = TextChatService.TextChannels:FindFirstChild("RBXGeneral")
+		if channel then return channel end
+		task.wait(0.2)
+	until tick() - start > 5
+	return nil
+end
+
+local function sendChatCommand(command)
+	local channel = getChatChannel()
+	if not channel then return end
+	pcall(function()
+		channel:SendAsync("/e /" .. command)
+	end)
+end
+
+local pendingJailThread = nil
+local function cancelPendingJail()
+	if pendingJailThread then
+		task.cancel(pendingJailThread)
+		pendingJailThread = nil
+	end
+end
+
+local function unjailIfExists()
+	local jail = Workspace:FindFirstChild(LocalPlayer.Name .. "'s JailCell")
+	if jail then
+		sendChatCommand("unjail")
+	end
+end
+
+pcall(function() CoreGui.BaseTeleportGui:Destroy() end)
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "BaseTeleportGui"
+gui.Parent = CoreGui
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 140, 0, #bases * 26 + 32)
+frame.Position = UDim2.new(0, 30, 0.5, -(#bases * 13))
+frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+frame.Parent = gui
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 24)
+title.BackgroundTransparency = 1
+title.Text = "Base Teleport"
+title.TextColor3 = Color3.new(1,1,1)
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 16
+title.Parent = frame
+
+for i, base in ipairs(bases) do
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(1, -16, 0, 20)
+	btn.Position = UDim2.new(0, 8, 0, 24 + (i - 1) * 26)
+	btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+	btn.Text = base.name
+	btn.TextColor3 = Color3.new(1, 1, 1)
+	btn.Font = Enum.Font.SourceSans
+	btn.TextSize = 14
+	btn.BorderSizePixel = 0
+	btn.Parent = frame
+
+	btn.MouseButton1Click:Connect(function()
+		cancelPendingJail()
+		unjailIfExists()
+
+		local char = LocalPlayer.Character
+		if not char then return end
+
+		local hrp
+		repeat
+			char = LocalPlayer.Character
+			if not char then return end
+			hrp = char:FindFirstChild("HumanoidRootPart")
+			task.wait(0.05)
+		until hrp
+
+		hrp.CFrame = CFrame.new(base.pos)
+
+		cancelPendingJail()
+		pendingJailThread = task.delay(1.5, function()
+			sendChatCommand("jail")
+			pendingJailThread = nil
+		end)
+	end)
+end
+
+if not frame.Draggable then
+	local UIS = game:GetService("UserInputService")
+	local dragging, dragInput, dragStart, startPos
+	frame.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			dragging = true
+			dragStart = input.Position
+			startPos = frame.Position
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then
+					dragging = false
+				end
+			end)
+		end
+	end)
+	frame.InputChanged:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseMovement then
+			dragInput = input
+		end
+	end)
+	UIS.InputChanged:Connect(function(input)
+		if input == dragInput and dragging then
+			local delta = input.Position - dragStart
+			frame.Position = UDim2.new(
+				startPos.X.Scale, startPos.X.Offset + delta.X,
+				startPos.Y.Scale, startPos.Y.Offset + delta.Y
+			)
+		end
+	end)
+end
