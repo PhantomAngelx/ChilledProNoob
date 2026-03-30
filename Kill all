@@ -1,0 +1,35 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+
+-- Main loop (runs every frame)
+RunService.RenderStepped:Connect(function()
+    -- Only proceed if sword equipped
+    local character = player.Character
+    if not character then return end
+    
+    local tool = character:FindFirstChildOfClass("Tool")
+    if not tool or not tool:FindFirstChild("Handle") then 
+        return  -- Stop if no sword equipped
+    end
+    
+    -- Activate sword (for some animations/damage)
+    tool:Activate()
+    
+    -- Kill all other players
+    for _, targetPlayer in pairs(Players:GetPlayers()) do
+        if targetPlayer ~= player then
+            local targetChar = targetPlayer.Character
+            if targetChar and targetChar:FindFirstChild("Humanoid") and targetChar.Humanoid.Health > 0 then
+                -- Fire touch on all target body parts
+                for _, part in pairs(targetChar:GetChildren()) do
+                    if part:IsA("BasePart") then
+                        firetouchinterest(tool.Handle, part, 0)
+                        firetouchinterest(tool.Handle, part, 1)
+                    end
+                end
+            end
+        end
+    end
+end)
