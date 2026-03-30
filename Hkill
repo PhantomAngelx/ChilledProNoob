@@ -1,0 +1,238 @@
+pcall(function() game:GetService("CoreGui").PlayerListGui:Destroy() end)
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local StarterGui = game:GetService("StarterGui")
+
+local function notify(title, text, duration)
+	duration = duration or 3
+	pcall(function()
+		StarterGui:SetCore("SendNotification", {
+			Title = title,
+			Text = text,
+			Duration = duration,
+		})
+	end)
+	print(("[Notify] %s: %s"):format(title, text))
+end
+
+local function getRoot(character)
+	if not character then return nil end
+	return character:FindFirstChild("HumanoidRootPart")
+		or character:FindFirstChild("Torso")
+		or character:FindFirstChild("LowerTorso")
+end
+
+local function startHandleKillLoop(targetPlayer, range)
+	if not firetouchinterest then
+		notify("Incompatible Exploit", "Your exploit does not support firetouchinterest.")
+		return nil
+	end
+
+	range = range or math.huge
+	local running = true
+	local targetName = targetPlayer and targetPlayer.Name or "Unknown"
+
+	local co = coroutine.create(function()
+		while running do
+			local tool = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildWhichIsA("Tool")
+			local handle = tool and tool:FindFirstChild("Handle")
+
+			if tool and handle and targetPlayer and targetPlayer.Character then
+				local hum = targetPlayer.Character:FindFirstChildOfClass("Humanoid")
+				local root = getRoot(targetPlayer.Character)
+
+				if root and hum and hum.Health > 0 then
+					local ok, dist = pcall(function()
+						return (root.Position - handle.Position).Magnitude
+					end)
+
+					if ok and dist and dist <= range then
+						pcall(function() firetouchinterest(handle, root, 1) end)
+						pcall(function() firetouchinterest(handle, root, 0) end)
+					end
+				end
+			end
+			task.wait(0.1)
+		end
+	end)
+
+	coroutine.resume(co)
+
+	local function stop()
+		if running then
+			running = false
+			notify("Handle Kill", ("Stopped targeting %s"):format(targetName))
+		end
+	end
+
+	notify("Handle Kill", ("Started targeting %s"):format(targetName))
+	return stop
+end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "PlayerListGui"
+gui.Parent = game:GetService("CoreGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 160, 0, 200)
+frame.Position = UDim2.new(0, 30, 0.4, 0)
+frame.BackgroundColor3 = Color3.fromRGB(0, 100, 255)
+frame.BackgroundTransparency = 0.25
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+frame.Parent = gui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 10)
+corner.Parent = frame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -24, 0, 24)
+title.Position = UDim2.new(0, 4, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Players"
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 16
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = frame
+
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(0, 20, 0, 20)
+toggleButton.Position = UDim2.new(1, -22, 0, 2)
+toggleButton.BackgroundColor3 = Color3.fromRGB(0, 80, 200)
+toggleButton.TextColor3 = Color3.new(1, 1, 1)
+toggleButton.Font = Enum.Font.SourceSansBold
+toggleButton.TextSize = 14
+toggleButton.Text = "−"
+toggleButton.Parent = frame
+
+local expanded = true
+local collapsedHeight = 24
+
+local scroll = Instance.new("ScrollingFrame")
+scroll.Size = UDim2.new(1, 0, 1, -24)
+scroll.Position = UDim2.new(0, 0, 0, 24)
+scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+scroll.ScrollBarThickness = 5
+scroll.BackgroundTransparency = 1
+scroll.Parent = frame
+
+local scrollCorner = Instance.new("UICorner")
+scrollCorner.CornerRadius = UDim.new(0, 8)
+scrollCorner.Parent = scroll
+
+-- 🔧 FIXED MINIMIZE / EXPAND LOGIC
+toggleButton.MouseButton1Click:Connect(function()
+	expanded = not expanded
+
+	if expanded then
+		scroll.Visible = true
+
+		-- Recalculate correct height based on content
+		local contentHeight = scroll.CanvasSize.Y.Offset
+		local newHeight = math.clamp(30 + contentHeight, 80, 250)
+
+		frame.Size = UDim2.new(0, 160, 0, newHeight)
+		toggleButton.Text = "−"
+	else
+		scroll.Visible = false
+		frame.Size = UDim2.new(0, 160, 0, collapsedHeight)
+		toggleButton.Text = "+"
+	end
+end)
+
+local selectedButtons = {}
+local runningLoops = {}
+
+local function updatePlayerButtons()
+	local selectedNames = {}
+	for name in pairs(selectedButtons) do
+		selectedNames[name] = true
+	end
+
+	for _, child in ipairs(scroll:GetChildren()) do
+		if child:IsA("TextButton") then
+			child:Destroy()
+		end
+	end
+
+	local players = Players:GetPlayers()
+	local y = 0
+	for _, plr in ipairs(players) do
+		if plr ~= LocalPlayer then
+			local btn = Instance.new("TextButton")
+			btn.Size = UDim2.new(1, -8, 0, 20)
+			btn.Position = UDim2.new(0, 4, 0, y)
+			btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+			btn.TextColor3 = Color3.new(1, 1, 1)
+			btn.Font = Enum.Font.SourceSans
+			btn.TextSize = 14
+			btn.Text = plr.Name
+			btn.BorderSizePixel = 0
+			btn.Parent = scroll
+
+			local key = plr.Name
+			if selectedNames[key] then
+				btn.BackgroundColor3 = Color3.fromRGB(130, 80, 180)
+				selectedButtons[key] = btn
+			end
+
+			btn.MouseButton1Click:Connect(function()
+				if selectedButtons[key] then
+					btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+					selectedButtons[key] = nil
+
+					if runningLoops[key] then
+						pcall(runningLoops[key])
+						runningLoops[key] = nil
+					end
+				else
+					btn.BackgroundColor3 = Color3.fromRGB(130, 80, 180)
+					selectedButtons[key] = btn
+
+					if not runningLoops[key] then
+						local stopFn = startHandleKillLoop(plr, math.huge)
+						if stopFn then
+							runningLoops[key] = stopFn
+						else
+							btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+							selectedButtons[key] = nil
+						end
+					end
+				end
+			end)
+
+			y = y + 21
+		end
+	end
+
+	scroll.CanvasSize = UDim2.new(0, 0, 0, y)
+
+	-- Resize only when expanded
+	if expanded then
+		frame.Size = UDim2.new(0, 160, 0, math.clamp(30 + y, 80, 250))
+	end
+end
+
+updatePlayerButtons()
+
+Players.PlayerAdded:Connect(updatePlayerButtons)
+Players.PlayerRemoving:Connect(function(plr)
+	local key = plr.Name
+	if runningLoops[key] then
+		pcall(runningLoops[key])
+		runningLoops[key] = nil
+	end
+	selectedButtons[key] = nil
+	updatePlayerButtons()
+end)
+
+LocalPlayer.CharacterRemoving:Connect(function()
+	for _, stopfn in pairs(runningLoops) do pcall(stopfn) end
+	runningLoops = {}
+	selectedButtons = {}
+	updatePlayerButtons()
+end)
