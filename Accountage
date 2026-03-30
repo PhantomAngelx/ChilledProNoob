@@ -1,0 +1,42 @@
+local StarterGui = game:GetService("StarterGui")
+        local Players = game:GetService("Players")
+
+        local DURATION = 5
+        local DELAY_BETWEEN = 0.5
+
+        local function formatAge(days)
+            if not days or days <= 0 then
+                return "New account"
+            end
+            return days .. " days old"
+        end
+
+        local function sendNotification(plr)
+            task.delay(0.3, function()
+                local ageText = formatAge(plr.AccountAge)
+                StarterGui:SetCore("SendNotification", {
+                    Title = plr.Name,
+                    Text = "Account age: " .. ageText,
+                    Duration = DURATION
+                })
+            end)
+        end
+
+        local function notifyExistingPlayers()
+            local playersList = Players:GetPlayers()
+            for i, plr in ipairs(playersList) do
+                task.spawn(function()
+                    task.wait((i - 1) * DELAY_BETWEEN)
+                    sendNotification(plr)
+                end)
+            end
+        end
+
+        notifyExistingPlayers()
+
+        Players.PlayerAdded:Connect(function(plr)
+            task.spawn(function()
+                task.wait(DELAY_BETWEEN)
+                sendNotification(plr)
+            end)
+        end)
