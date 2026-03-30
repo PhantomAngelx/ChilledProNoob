@@ -1,0 +1,24 @@
+local function disableLasers()
+    local tycoonsFolder = workspace:WaitForChild("Tycoons"):WaitForChild("Tycoons")
+    
+    for _, tycoon in pairs(tycoonsFolder:GetChildren()) do
+        local purchasedObjects = tycoon:FindFirstChild("PurchasedObjects")
+        if purchasedObjects then
+            local door = purchasedObjects:FindFirstChild("OwnerOnlyDoor")
+            if door then
+                local lasers = door:FindFirstChild("Lasers")
+                if lasers then
+                    for _, laser in ipairs(lasers:GetChildren()) do
+                        if laser:IsA("BasePart") then
+                            laser.CanCollide = false
+                            laser.CanTouch = false
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- Run it once
+disableLasers()
