@@ -1,0 +1,131 @@
+--// Services
+local RunService = game:GetService("RunService")
+
+--// Variables
+local Tycoons = workspace:WaitForChild("Tycoons"):WaitForChild("Tycoons")
+
+local bases = {
+	"Yellow Base", "Blue Base", "Green Base", "Red Base",
+	"Black Base", "Pink Base", "Orange Base", "Purple Base",
+}
+
+local running = false          -- starts OFF / paused
+local connection               -- for the loop
+
+-- ────────────────────────────────────────────────────────────────
+--  Create GUI
+-- ────────────────────────────────────────────────────────────────
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "LaserToggleGui"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 140, 0, 54)
+Frame.Position = UDim2.new(0.5, -70, 0.12, 0)
+Frame.BackgroundColor3 = Color3.fromRGB(10, 12, 18)
+Frame.BackgroundTransparency = 0.40
+Frame.BorderSizePixel = 0
+Frame.ClipsDescendants = true
+Frame.Active = true
+Frame.Draggable = true
+Frame.Parent = ScreenGui
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 12)
+UICorner.Parent = Frame
+
+local UIStroke = Instance.new("UIStroke")
+UIStroke.Color = Color3.fromRGB(0, 180, 255)
+UIStroke.Thickness = 2.5
+UIStroke.Transparency = 0.1
+UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+UIStroke.LineJoinMode = Enum.LineJoinMode.Round
+UIStroke.Parent = Frame
+
+local GlowStroke = Instance.new("UIStroke")
+GlowStroke.Color = Color3.fromRGB(0, 220, 255)
+GlowStroke.Thickness = 5
+GlowStroke.Transparency = 0.75
+GlowStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+GlowStroke.Parent = Frame
+
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Size = UDim2.new(1, -12, 1, -12)
+ToggleButton.Position = UDim2.new(0, 6, 0, 6)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(190, 40, 40)   -- starts red (paused)
+ToggleButton.TextColor3 = Color3.new(1,1,1)
+ToggleButton.Font = Enum.Font.SourceSansBold
+ToggleButton.TextSize = 15
+ToggleButton.Text = "Toggle Laser\n(paused)"
+ToggleButton.AutoButtonColor = true
+ToggleButton.Parent = Frame
+
+local btnCorner = Instance.new("UICorner")
+btnCorner.CornerRadius = UDim.new(0, 9)
+btnCorner.Parent = ToggleButton
+
+-- ────────────────────────────────────────────────────────────────
+--  Auto-clicker logic
+-- ────────────────────────────────────────────────────────────────
+
+local function fireAllOwnerDoors()
+	for _, baseName in ipairs(bases) do
+		local base = Tycoons:FindFirstChild(baseName)
+		if not base then continue end
+		
+		local door = base:FindFirstChild("PurchasedObjects", true)
+		             and base.PurchasedObjects:FindFirstChild("OwnerOnlyDoor")
+		
+		if not door then continue end
+		
+		local button = door:FindFirstChild("Button")
+		if not button then continue end
+		
+		local cd = button:FindFirstChildOfClass("ClickDetector")
+		if cd then
+			fireclickdetector(cd)
+		end
+	end
+end
+
+local function startLoop()
+	if connection then connection:Disconnect() end
+	
+	connection = RunService.Heartbeat:Connect(function()
+		if not running then return end
+		fireAllOwnerDoors()
+		task.wait(0.1)   -- ← changed to 0.1 seconds (\~10× per second)
+	end)
+end
+
+local function stopLoop()
+	if connection then
+		connection:Disconnect()
+		connection = nil
+	end
+end
+
+-- ────────────────────────────────────────────────────────────────
+--  Button behavior
+-- ────────────────────────────────────────────────────────────────
+
+ToggleButton.MouseButton1Click:Connect(function()
+	running = not running
+	
+	if running then
+		ToggleButton.Text = "Toggle Laser\n(running)"
+		ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 180, 80)   -- green
+		startLoop()
+	else
+		ToggleButton.Text = "Toggle Laser\n(paused)"
+		ToggleButton.BackgroundColor3 = Color3.fromRGB(190, 40, 40)  -- red
+		stopLoop()
+	end
+end)
+
+-- Cleanup
+game:BindToClose(function()
+	if connection then connection:Disconnect() end
+end)
