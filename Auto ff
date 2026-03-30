@@ -1,0 +1,23 @@
+local Players = game:GetService("Players")
+local TextChatService = game:GetService("TextChatService")
+local lp = Players.LocalPlayer
+local chatChannel = TextChatService.TextChannels:FindFirstChild("RBXGeneral")
+if not chatChannel then return end
+
+local function sendForceFieldMessage()
+    pcall(function()
+        chatChannel:SendAsync("/e /ff")
+    end)
+end
+
+-- Trigger when character spawns (after death or first spawn)
+lp.CharacterAdded:Connect(function(char)
+    -- Wait a tiny bit to ensure character fully loaded
+    char:WaitForChild("HumanoidRootPart")
+    sendForceFieldMessage()
+end)
+
+-- If already spawned
+if lp.Character then
+    sendForceFieldMessage()
+end
