@@ -1,0 +1,233 @@
+-- Auto Illumina + Auto Swing - Small GUI with Matching Floating Button
+-- FIXED: Prevents multiple GUIs/buttons from spawning (checks if already exists)
+
+_G.AutoIllumina = false
+_G.AutoSwing = false
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local player = Players.LocalPlayer
+
+-- Prevent multiple instances
+if player.PlayerGui:FindFirstChild("IlluminaControl") then
+    print("[Illumina GUI] Already exists - not creating duplicate")
+    return
+end
+
+task.wait(1)
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "IlluminaControl"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Enabled = true
+ScreenGui.DisplayOrder = 999
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.Parent = player:WaitForChild("PlayerGui")
+
+-- ─── Main Panel (small) ───
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 180, 0, 140)
+MainFrame.Position = UDim2.new(0.5, -90, 0.45, -70)
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainFrame.BorderSizePixel = 0
+MainFrame.Visible = true
+MainFrame.Parent = ScreenGui
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 32)
+Title.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+Title.Text = "Illumina Auto"
+Title.TextColor3 = Color3.fromRGB(220, 180, 0)
+Title.Font = Enum.Font.SourceSansBold
+Title.TextSize = 18
+Title.Parent = MainFrame
+
+-- Dragging main frame
+local draggingMain, dragStartMain, startPosMain
+Title.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        draggingMain = true
+        dragStartMain = input.Position
+        startPosMain = MainFrame.Position
+        
+        local conn
+        conn = input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                draggingMain = false
+                conn:Disconnect()
+            end
+        end)
+    end
+end)
+
+Title.InputChanged:Connect(function(input)
+    if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and draggingMain then
+        local delta = input.Position - dragStartMain
+        MainFrame.Position = UDim2.new(startPosMain.X.Scale, startPosMain.X.Offset + delta.X, startPosMain.Y.Scale, startPosMain.Y.Offset + delta.Y)
+    end
+end)
+
+-- ─── Floating Button (circle, no text, dark theme) ───
+local FloatButton = Instance.new("TextButton")
+FloatButton.Size = UDim2.new(0, 48, 0, 48)
+FloatButton.Position = UDim2.new(0.08, 0, 0.5, -24)
+FloatButton.BackgroundColor3 = Color3.fromRGB(64, 64, 64)
+FloatButton.Text = ""
+FloatButton.BorderSizePixel = 0
+FloatButton.AutoButtonColor = false
+FloatButton.Parent = ScreenGui
+
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(1, 0)
+Corner.Parent = FloatButton
+
+local Stroke = Instance.new("UIStroke")
+Stroke.Color = Color3.fromRGB(100, 100, 120)
+Stroke.Thickness = 1.5
+Stroke.Transparency = 0.4
+Stroke.Parent = FloatButton
+
+-- Dragging for button
+local draggingBtn, dragStartBtn, startPosBtn
+FloatButton.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        draggingBtn = true
+        dragStartBtn = input.Position
+        startPosBtn = FloatButton.Position
+        
+        local conn
+        conn = input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                draggingBtn = false
+                conn:Disconnect()
+            end
+        end)
+    end
+end)
+
+FloatButton.InputChanged:Connect(function(input)
+    if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and draggingBtn then
+        local delta = input.Position - dragStartBtn
+        FloatButton.Position = UDim2.new(startPosBtn.X.Scale, startPosBtn.X.Offset + delta.X, startPosBtn.Y.Scale, startPosBtn.Y.Offset + delta.Y)
+    end
+end)
+
+-- Toggle visibility
+FloatButton.MouseButton1Click:Connect(function()
+    MainFrame.Visible = not MainFrame.Visible
+    FloatButton.BackgroundColor3 = MainFrame.Visible and Color3.fromRGB(96, 96, 128) or Color3.fromRGB(64, 64, 64)
+end)
+
+-- ─── Toggles ───
+local function makeToggle(text, y, varName)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0.88, 0, 0, 38)
+    btn.Position = UDim2.new(0.06, 0, 0, y)
+    btn.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
+    btn.TextColor3 = Color3.fromRGB(240, 240, 240)
+    btn.Font = Enum.Font.SourceSans
+    btn.TextSize = 16
+    btn.Text = text .. ": OFF"
+    btn.Parent = MainFrame
+
+    local uic = Instance.new("UICorner")
+    uic.CornerRadius = UDim.new(0, 6)
+    uic.Parent = btn
+
+    btn.MouseButton1Click:Connect(function()
+        _G[varName] = not _G[varName]
+        btn.Text = text .. ": " .. (_G[varName] and "ON" or "OFF")
+        btn.BackgroundColor3 = _G[varName] and Color3.fromRGB(0, 160, 0) or Color3.fromRGB(55, 55, 55)
+    end)
+end
+
+makeToggle("Auto Equip", 40, "AutoIllumina")
+makeToggle("Auto Swing", 85, "AutoSwing")
+
+-- Close button (destroys everything)
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0, 26, 0, 26)
+close.Position = UDim2.new(1, -28, 0, 3)
+close.BackgroundTransparency = 1
+close.Text = "×"
+close.TextColor3 = Color3.fromRGB(255, 80, 80)
+close.Font = Enum.Font.SourceSansBold
+close.TextSize = 20
+close.Parent = MainFrame
+
+close.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+    _G.AutoIllumina = false
+    _G.AutoSwing = false
+    print("[Illumina GUI] Closed and destroyed")
+end)
+
+-- ─── Script Logic ───
+local function getIllumina()
+    local folder = workspace:FindFirstChild(player.Name)
+    if folder then
+        local item = folder:FindFirstChild("Illumina")
+        if item and (item:IsA("Tool") or item:IsA("Model")) then return item end
+    end
+    return player.Backpack:FindFirstChild("Illumina")
+end
+
+local function equipIllumina()
+    local char = player.Character
+    if not char then return end
+    local hum = char:FindFirstChildWhichIsA("Humanoid")
+    if not hum then return end
+    
+    local item = getIllumina()
+    if not item then return end
+
+    if item:IsA("Tool") then
+        item.Parent = char
+        hum:EquipTool(item)
+    else
+        item.Parent = char
+    end
+end
+
+local equipConn
+local function startEquip()
+    if equipConn then equipConn:Disconnect() end
+    equipConn = RunService.Heartbeat:Connect(function()
+        if not _G.AutoIllumina then return end
+        local char = player.Character
+        if char and not char:FindFirstChild("Illumina") then
+            equipIllumina()
+        end
+    end)
+end
+
+local swingConn
+local function startSwing()
+    if swingConn then swingConn:Disconnect() end
+    swingConn = RunService.Heartbeat:Connect(function()
+        if not _G.AutoSwing then return end
+        local char = player.Character
+        if not char then return end
+        local tool = char:FindFirstChild("Illumina")
+        if tool and tool:IsA("Tool") then
+            tool:Activate()
+        end
+    end)
+end
+
+player.CharacterAdded:Connect(function()
+    task.wait(2)
+    if _G.AutoIllumina then equipIllumina() end
+end)
+
+startEquip()
+startSwing()
+
+task.spawn(function()
+    while task.wait(3) do
+        if _G.AutoIllumina then equipIllumina() end
+    end
+end)
+
+print("[Illumina GUI] Loaded - only one instance allowed")
