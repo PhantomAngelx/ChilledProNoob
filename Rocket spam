@@ -1,0 +1,54 @@
+local numTotalRockets = 50000     
+local batchSize = 5000
+local maxPing = 450
+local eventDelay = 0.001
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+
+local function getPing()
+    local stats = LocalPlayer:GetNetworkPing()
+    return stats and math.floor(stats * 1000) or 0 -- ms
+end
+
+local launcher
+repeat
+    launcher = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("RocketLauncher")
+    if not launcher then task.wait(0.2) end
+until launcher
+
+local rocketEvent = launcher:FindFirstChild("BattleRocketEvent")
+assert(rocketEvent, "No RocketLauncher event found!")
+
+local function launchBatch()
+    local launched = 0
+    while launched < numTotalRockets do
+        for i = 1, batchSize do
+            local target = Vector3.new(
+                math.random(-1000, 1000),
+                math.random(0, 1000),
+                math.random(-1000, 1000)
+            )
+            pcall(function()
+                rocketEvent:FireServer(target)
+            end)
+            launched = launched + 1
+            if launched >= numTotalRockets then break end
+        end
+
+        local currentPing = getPing()
+        if currentPing > maxPing then
+            task.wait(eventDelay * 3) 
+        else
+            task.wait(eventDelay)
+        end
+    end
+end
+
+while true do
+    print("Launching new infinite batch cycle...")
+    launchBatch()
+    print("Batch complete! Restarting soon...")
+    task.wait(2)
+end
