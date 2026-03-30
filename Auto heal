@@ -1,0 +1,87 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
+
+local HEAL_THRESHOLD = 90
+local COOLDOWN = 0.25   -- faster than before
+local healing = false
+local lastUse = 0
+local healthConn
+
+local function findMedkit()
+    local bp = player:FindFirstChild("Backpack")
+    if bp then
+        for _, v in ipairs(bp:GetChildren()) do
+            if v:IsA("Tool") and v.Name == "Medkit" then
+                return v
+            end
+        end
+    end
+
+    local char = player.Character
+    if char then
+        for _, v in ipairs(char:GetChildren()) do
+            if v:IsA("Tool") and v.Name == "Medkit" then
+                return v
+            end
+        end
+    end
+
+    return nil
+end
+
+local function equip(tool)
+    if not tool or not player.Character then return false end
+    if tool.Parent ~= player.Character then
+        tool.Parent = player.Character
+        RunService.Heartbeat:Wait()  -- fastest possible yield
+    end
+    return tool.Parent == player.Character
+end
+
+local function autoUseMedkit()
+    if healing then return end
+    if os.clock() - lastUse < COOLDOWN then return end
+
+    local medkit = findMedkit()
+    if not medkit then return end
+
+    local char = player.Character
+    if not char then return end
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    if not humanoid then return end
+    if humanoid.Health >= HEAL_THRESHOLD then return end
+
+    healing = true
+    lastUse = os.clock()
+
+    equip(medkit)
+
+    -- Instant activation
+    medkit:Activate()
+
+    -- Give server a breath (1 frame)
+    RunService.Heartbeat:Wait()
+
+    -- Optional: safely destroy medkit AFTER use (non-blocking)
+    task.delay(0.1, function()
+        if medkit.Parent then medkit:Destroy() end
+    end)
+
+    healing = false
+end
+
+local function onHealthChanged(newHealth)
+    if newHealth < HEAL_THRESHOLD then
+        autoUseMedkit()
+    end
+end
+
+local function bindCharacter(char)
+    if healthConn then healthConn:Disconnect() end
+    local humanoid = char:WaitForChild("Humanoid")
+    healthConn = humanoid.HealthChanged:Connect(onHealthChanged)
+end
+
+if player.Character then bindCharacter(player.Character) end
+player.CharacterAdded:Connect(bindCharacter)
