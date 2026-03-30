@@ -1,0 +1,127 @@
+--// Services
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+--// Settings
+local TOOL_NAME = "RocketLauncher"
+local ENABLED = false
+
+--// GUI (unchanged)
+local gui = Instance.new("ScreenGui")
+gui.Name = "AutoEquipGUI"
+gui.ResetOnSpawn = false
+gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.fromOffset(115, 45)
+frame.Position = UDim2.fromScale(0.45, 0.45)
+frame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+frame.BackgroundTransparency = 0.15
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+frame.Parent = gui
+
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 14)
+title.BackgroundTransparency = 1
+title.Text = "Auto Equip"
+title.Font = Enum.Font.GothamMedium
+title.TextSize = 11
+title.TextColor3 = Color3.fromRGB(200, 200, 200)
+title.Parent = frame
+
+local button = Instance.new("TextButton")
+button.Position = UDim2.fromOffset(6, 18)
+button.Size = UDim2.fromOffset(103, 21)
+button.Font = Enum.Font.GothamBold
+button.TextSize = 11
+button.BorderSizePixel = 0
+button.BackgroundTransparency = 0.25
+button.Parent = frame
+
+Instance.new("UICorner", button).CornerRadius = UDim.new(0, 6)
+
+local stroke = Instance.new("UIStroke", button)
+stroke.Thickness = 1.2
+stroke.Parent = button
+
+local function updateButton()
+    if ENABLED then
+        button.Text = "UNEQUIP"
+        button.BackgroundColor3 = Color3.fromRGB(190, 60, 60)
+        stroke.Color = Color3.fromRGB(255, 120, 120)
+    else
+        button.Text = "EQUIP"
+        button.BackgroundColor3 = Color3.fromRGB(90, 200, 90)
+        stroke.Color = Color3.fromRGB(150, 255, 150)
+    end
+end
+
+updateButton()
+
+--// Fast equip attempt
+local function tryEquipInstant()
+    local char = LocalPlayer.Character
+    if not char then return end
+
+    local humanoid = char:FindFirstChild("Humanoid")
+    if not humanoid or humanoid.Health <= 0 then return end
+
+    local tool = LocalPlayer.Backpack:FindFirstChild(TOOL_NAME)
+    if not tool then return end
+
+    -- Skip if already equipped
+    if char:FindFirstChild(TOOL_NAME) then return end
+
+    -- Most games accept this even at high speed
+    pcall(function()
+        humanoid:EquipTool(tool)
+    end)
+end
+
+--// Main fast loop
+local connection
+local function startFastEquip()
+    if connection then connection:Disconnect() end
+
+    connection = game:GetService("RunService").Heartbeat:Connect(function()
+        if not ENABLED then return end
+        tryEquipInstant()
+    end)
+end
+
+local function stopFastEquip()
+    if connection then
+        connection:Disconnect()
+        connection = nil
+    end
+end
+
+--// Toggle
+button.MouseButton1Click:Connect(function()
+    ENABLED = not ENABLED
+    updateButton()
+
+    if ENABLED then
+        tryEquipInstant()           -- equip right now
+        startFastEquip()            -- keep trying every frame
+    else
+        stopFastEquip()
+    end
+end)
+
+--// Respawn / character reload
+LocalPlayer.CharacterAdded:Connect(function(character)
+    task.wait(0.15) -- tiny wait so backpack exists
+
+    if not ENABLED then return end
+
+    tryEquipInstant()       -- try instantly on spawn
+    startFastEquip()        -- resume fast loop
+end)
+
+-- Optional: clean up old connection when character dies/removes
+LocalPlayer.CharacterRemoving:Connect(stopFastEquip)
