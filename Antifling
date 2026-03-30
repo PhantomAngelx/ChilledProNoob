@@ -1,0 +1,45 @@
+local Players = game:GetService("Players")
+        local RunService = game:GetService("RunService")
+        local LocalPlayer = Players.LocalPlayer
+        local AntiFling = true
+
+        local function NoCollision(plr)
+            if plr and plr.Character then
+                for _, part in pairs(plr.Character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = false
+                        part.Massless = true
+                    end
+                end
+            end
+        end
+
+        local function ApplyAntiFling()
+            for _, plr in pairs(Players:GetPlayers()) do
+                if plr \~= LocalPlayer then
+                    NoCollision(plr)
+                end
+            end
+        end
+
+        RunService.Stepped:Connect(function()
+            if AntiFling then
+                ApplyAntiFling()
+            end
+        end)
+
+        Players.PlayerAdded:Connect(function(plr)
+            if plr \~= LocalPlayer then
+                plr.CharacterAdded:Connect(function()
+                    task.wait(1)
+                    NoCollision(plr)
+                end)
+            end
+        end)
+
+        LocalPlayer.CharacterAdded:Connect(function()
+            task.wait(2)
+            ApplyAntiFling()
+        end)
+
+        print("[AntiFling] Permanent Anti-Fling enabled.")
