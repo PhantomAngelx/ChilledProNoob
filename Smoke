@@ -1,0 +1,22 @@
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local speedRemote = character:WaitForChild("SuperSpeedCoil", 8):WaitForChild("Speed")
+
+local args = {150}
+
+-- Main spam loop - very aggressive but with tiny breathing room
+game:GetService("RunService").Heartbeat:Connect(function()
+    for i = 1, 450 do
+        speedRemote:FireServer(unpack(args))
+    end
+end)
+
+-- Backup parallel spawner
+task.spawn(function()
+    while true do
+        for i = 1, 800 do
+            speedRemote:FireServer(150)
+        end
+        task.wait(0.008)   -- ~120–140 fps equivalent
+    end
+end)
