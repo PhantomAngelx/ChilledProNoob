@@ -1,0 +1,50 @@
+-- Bring All Ingredients (runs once on execute)
+
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local hrp = character:WaitForChild("HumanoidRootPart")
+
+local ingredientNames = {
+	"Yeast", "Watermelon", "Strawberry", "Tomato", "RatMeat",
+	"RadioactiveRatMeat", "RadioactiveEgg", "RadioactiveCorn",
+	"RadioactiveCarrot", "RadioactiveBanana", "Pumpkin", "PricklyPear",
+	"Potato", "Pineapple", "Pickle", "Peanut", "Orange", "Onion",
+	"Mushroom", "Milk", "Marshmallow", "Mango", "Meat", "IceCream",
+	"GreenPea", "Grape", "GhostPepper", "EnragedYeast", "Eggplant",
+	"Corn", "Coconut", "ChocolateMilk", "ChilliPepper", "Chicken",
+	"Cheese", "Carrot", "CactusMeat", "Doomberry", "Blueberry",
+	"BlackBerry", "Banana", "Apple", "GoldenApple", "DevilEgg",
+	"GoldenCarrot", "CherryBomb", 
+}
+
+local nameSet = {}
+for _, name in ipairs(ingredientNames) do
+	nameSet[name] = true
+end
+
+local interactables = Workspace:FindFirstChild("Interactables")
+if not interactables then
+	warn("Interactables folder not found!")
+	return
+end
+
+local count = 0
+
+for _, obj in ipairs(interactables:GetChildren()) do
+	if obj:IsA("Model")
+		and nameSet[obj.Name]
+		and not obj:FindFirstChild("ProductPriceTag")
+		and obj.PrimaryPart then
+		
+		obj:PivotTo(hrp.CFrame * CFrame.new(0, 0, -4))
+		count += 1
+	end
+end
+
+print("[Bring Ingredients] Brought", count, "ingredients to you.")
+
+
+Can I integrate this into the bring all ingredients button and connect it together so pressing the bring all ingredients buttons brings the ingredient how it does in this code
